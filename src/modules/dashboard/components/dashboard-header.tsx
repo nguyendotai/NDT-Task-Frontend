@@ -1,10 +1,11 @@
 "use client";
 
-import { SearchIcon } from "lucide-react";
+import Link from "next/link";
+import { PlusIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { AccountMenu } from "@/features/auth";
-import { CreateWorkspaceDialog } from "@/features/workspace";
 
 export function DashboardHeader() {
   return (
@@ -15,7 +16,13 @@ export function DashboardHeader() {
         <Input placeholder="Search workspaces, tasks..." className="pl-9" />
       </div>
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        <CreateWorkspaceDialog />
+        <Button
+          render={<Link href="/workspaces/new" />}
+          className="gap-1.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+        >
+          <PlusIcon className="size-4" />
+          Create Workspace
+        </Button>
         <ThemeToggle />
         <AccountMenu />
       </div>

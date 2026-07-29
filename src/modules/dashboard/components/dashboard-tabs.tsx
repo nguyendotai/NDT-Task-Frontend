@@ -61,7 +61,7 @@ function TabPanel({
           <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Workspaces
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {workspaces.map((workspace) => (
               <WorkspaceCard key={workspace.id} workspace={workspace} />
             ))}
