@@ -6,6 +6,8 @@ export const createWorkspaceSchema = z.object({
     message: "Please select a workspace type",
   }),
   description: z.string().max(1000).optional(),
+  avatarEmoji: z.string().optional(),
+  avatarColor: z.string().optional(),
 });
 
 export type CreateWorkspaceFormValues = z.infer<typeof createWorkspaceSchema>;

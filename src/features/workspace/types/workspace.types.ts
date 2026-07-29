@@ -7,6 +7,9 @@ export interface Workspace {
   type: WorkspaceType;
   description?: string | null;
   ownerId: string;
+  shortCode: string;
+  avatarEmoji: string;
+  avatarColor: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -15,6 +18,7 @@ export interface WorkspaceSummary extends Workspace {
   myRole: WorkspaceRole;
   isStarred: boolean;
   lastAccessedAt: string;
+  tasksCount: number;
 }
 
 export interface WorkspaceDetail extends Workspace {

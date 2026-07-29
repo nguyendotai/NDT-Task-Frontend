@@ -10,6 +10,8 @@ interface CreateWorkspaceRequest {
   name: string;
   type: "KANBAN" | "SCRUM";
   description?: string;
+  avatarEmoji?: string;
+  avatarColor?: string;
 }
 
 export const workspaceApi = baseApi.injectEndpoints({

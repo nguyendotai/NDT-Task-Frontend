@@ -1,4 +1,4 @@
-export { CreateWorkspaceDialog } from "./components/create-workspace-dialog";
+export { AvatarPresetPicker } from "./components/avatar-preset-picker";
 export {
   useListMyWorkspacesQuery,
   useGetWorkspaceQuery,
@@ -16,3 +16,12 @@ export type {
   WorkspaceRole,
   WorkspaceType,
 } from "./types/workspace.types";
+export {
+  createWorkspaceSchema,
+  type CreateWorkspaceFormValues,
+} from "./schemas/create-workspace.schema";
+export {
+  WORKSPACE_AVATAR_PRESETS,
+  getWorkspaceAvatarGradient,
+  type WorkspaceAvatarPreset,
+} from "./constants/avatar-presets";
