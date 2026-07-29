@@ -1,7 +1,25 @@
 "use client";
 
 import { Badge } from "@/shared/components/ui/badge";
-import { useGetWorkspaceBoardQuery, useGetWorkspaceQuery } from "@/features/workspace";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { useGetWorkspaceQuery } from "@/features/workspace";
+import { BoardView } from "@/modules/board/components/board-view";
+import { ListView } from "@/modules/board/components/list-view";
+import { MemberView } from "@/modules/board/components/member-view";
+import { TimelineView } from "@/modules/board/components/timeline-view";
+import { CalendarView } from "@/modules/board/components/calendar-view";
+import { ArchiveView } from "@/modules/board/components/archive-view";
+import { DocsView } from "@/modules/board/components/docs-view";
+
+const TABS = [
+  { value: "list", label: "List" },
+  { value: "timeline", label: "Timeline" },
+  { value: "board", label: "Board" },
+  { value: "calendar", label: "Calendar" },
+  { value: "archive", label: "Archive" },
+  { value: "member", label: "Member" },
+  { value: "docs", label: "Docs" },
+] as const;
 
 export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
   const {
@@ -10,9 +28,6 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
     isError,
     refetch,
   } = useGetWorkspaceQuery(workspaceId);
-  const { data: board } = useGetWorkspaceBoardQuery(workspaceId, {
-    skip: !workspace,
-  });
 
   if (isLoading) {
     return (
@@ -53,28 +68,41 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
         </p>
       </div>
 
-      {board ? (
-        <div>
-          <h2 className="mb-2 font-heading text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            Board: {board.name}
-          </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {board.columns.map((column) => (
-              <div
-                key={column.id}
-                className="rounded-2xl border border-border/60 bg-card p-4"
-              >
-                <p className="text-sm font-medium text-foreground">{column.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">No tasks yet</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <Tabs defaultValue="board">
+        <TabsList className="h-auto flex-wrap gap-0.5 rounded-full bg-muted p-1 dark:bg-[#545454]">
+          {TABS.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="rounded-full px-3.5 py-1.5 data-active:shadow-sm"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <p className="text-sm text-muted-foreground">
-        Full Task/Board management is coming later as part of Board Management.
-      </p>
+        <TabsContent value="list" className="mt-4">
+          <ListView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="timeline" className="mt-4">
+          <TimelineView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="board" className="mt-4">
+          <BoardView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="calendar" className="mt-4">
+          <CalendarView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="archive" className="mt-4">
+          <ArchiveView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="member" className="mt-4">
+          <MemberView workspaceId={workspaceId} />
+        </TabsContent>
+        <TabsContent value="docs" className="mt-4">
+          <DocsView />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

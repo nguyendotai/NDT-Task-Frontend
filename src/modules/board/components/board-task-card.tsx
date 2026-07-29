@@ -1,0 +1,66 @@
+"use client";
+
+import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { CalendarIcon } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { getInitials } from "@/shared/utils/initials";
+import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, type Task } from "@/features/task";
+
+function formatShortDate(value: string) {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export function BoardTaskCard({
+  task,
+  assigneeName,
+  onClick,
+}: {
+  task: Task;
+  assigneeName?: string;
+  onClick: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: task.id,
+    data: { task },
+  });
+
+  return (
+    <button
+      type="button"
+      ref={setNodeRef}
+      onClick={onClick}
+      style={{ transform: CSS.Translate.toString(transform) }}
+      className={
+        "flex w-full flex-col gap-2 rounded-2xl border border-border/60 bg-card p-3 text-left shadow-sm transition-opacity " +
+        (isDragging ? "opacity-40" : "opacity-100")
+      }
+      {...listeners}
+      {...attributes}
+    >
+      <p className="text-sm font-medium text-foreground">{task.title}</p>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Badge className={PRIORITY_BADGE_CLASS[task.priority]} variant="outline">
+          {PRIORITY_LABEL[task.priority]}
+        </Badge>
+        {task.dueDate ? (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <CalendarIcon className="size-3" />
+            {formatShortDate(task.dueDate)}
+          </span>
+        ) : null}
+      </div>
+      {assigneeName ? (
+        <div className="flex items-center gap-1.5">
+          <span className="flex size-5 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-secondary-foreground">
+            {getInitials(assigneeName)}
+          </span>
+          <span className="truncate text-xs text-muted-foreground">{assigneeName}</span>
+        </div>
+      ) : null}
+    </button>
+  );
+}

@@ -14,6 +14,7 @@ export interface Task {
   status: TaskStatus;
   order: number;
   backlogOrder?: number | null;
+  startDate?: string | null;
   dueDate?: string | null;
   assigneeId?: string | null;
   createdBy: string;

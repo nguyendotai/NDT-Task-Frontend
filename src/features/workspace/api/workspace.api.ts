@@ -3,6 +3,9 @@ import type {
   Workspace,
   WorkspaceBoard,
   WorkspaceDetail,
+  WorkspaceInvitation,
+  WorkspaceMember,
+  WorkspaceRole,
   WorkspaceSummary,
 } from "../types/workspace.types";
 
@@ -12,6 +15,23 @@ interface CreateWorkspaceRequest {
   description?: string;
   avatarEmoji?: string;
   avatarColor?: string;
+}
+
+interface InviteMemberRequest {
+  workspaceId: string;
+  email: string;
+  role: WorkspaceRole;
+}
+
+interface UpdateMemberRoleRequest {
+  workspaceId: string;
+  memberId: string;
+  role: WorkspaceRole;
+}
+
+interface RemoveMemberRequest {
+  workspaceId: string;
+  memberId: string;
 }
 
 export const workspaceApi = baseApi.injectEndpoints({
@@ -42,6 +62,47 @@ export const workspaceApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/workspaces/${id}/star`, method: "DELETE" }),
       invalidatesTags: ["Workspace"],
     }),
+    listMembers: builder.query<WorkspaceMember[], string>({
+      query: (workspaceId) => `/workspaces/${workspaceId}/members`,
+      providesTags: ["Workspace"],
+    }),
+    inviteMember: builder.mutation<WorkspaceInvitation, InviteMemberRequest>({
+      query: ({ workspaceId, ...body }) => ({
+        url: `/workspaces/${workspaceId}/members/invite`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
+    updateMemberRole: builder.mutation<WorkspaceMember, UpdateMemberRoleRequest>({
+      query: ({ workspaceId, memberId, role }) => ({
+        url: `/workspaces/${workspaceId}/members/${memberId}/role`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
+    removeMember: builder.mutation<Record<string, never>, RemoveMemberRequest>({
+      query: ({ workspaceId, memberId }) => ({
+        url: `/workspaces/${workspaceId}/members/${memberId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
+    listInvitations: builder.query<WorkspaceInvitation[], string>({
+      query: (workspaceId) => `/workspaces/${workspaceId}/invitations`,
+      providesTags: ["Workspace"],
+    }),
+    revokeInvitation: builder.mutation<
+      Record<string, never>,
+      { workspaceId: string; invitationId: string }
+    >({
+      query: ({ workspaceId, invitationId }) => ({
+        url: `/workspaces/${workspaceId}/invitations/${invitationId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
   }),
 });
 
@@ -52,4 +113,10 @@ export const {
   useCreateWorkspaceMutation,
   useStarWorkspaceMutation,
   useUnstarWorkspaceMutation,
+  useListMembersQuery,
+  useInviteMemberMutation,
+  useUpdateMemberRoleMutation,
+  useRemoveMemberMutation,
+  useListInvitationsQuery,
+  useRevokeInvitationMutation,
 } = workspaceApi;
