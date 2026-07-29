@@ -40,3 +40,29 @@ export interface WorkspaceBoard {
   updatedAt: string;
   columns: WorkspaceColumn[];
 }
+
+export interface WorkspaceMember {
+  id: string;
+  workspaceId: string;
+  role: WorkspaceRole;
+  joinedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string | null;
+  };
+}
+
+export type InvitationStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED";
+
+export interface WorkspaceInvitation {
+  id: string;
+  workspaceId: string;
+  email: string;
+  role: WorkspaceRole;
+  status: InvitationStatus;
+  invitedBy: string;
+  expiresAt: string;
+  createdAt: string;
+}
