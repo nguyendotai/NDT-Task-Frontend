@@ -45,7 +45,8 @@ export function WhyChoose() {
     <section className="border-y border-border/60 bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+          <p className="text-sm font-semibold tracking-widest text-blue-500">WHY NDT TASK</p>
+          <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             Why Choose NDT Task
           </h2>
         </div>

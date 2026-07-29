@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LayoutGridIcon } from "lucide-react";
 
 const FOOTER_LINKS = {
   Product: [
@@ -23,8 +24,8 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-bold text-white">
-                N
+              <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-white">
+                <LayoutGridIcon className="size-4" />
               </span>
               NDT Task
             </Link>
@@ -52,8 +53,9 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 border-t border-border/60 pt-6 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} NDT Task. All rights reserved.
+        <div className="mt-10 flex flex-col items-center gap-1 border-t border-border/60 pt-6 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} NDT Task. All rights reserved.</p>
+          <p className="text-xs">Designed for modern software delivery teams.</p>
         </div>
       </div>
     </footer>
