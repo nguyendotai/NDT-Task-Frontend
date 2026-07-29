@@ -34,7 +34,7 @@ export function GoogleButton() {
       <Button
         type="button"
         variant="outline"
-        className="w-full gap-2"
+        className="h-11 w-full gap-2 text-base"
         onClick={() => setNotice(true)}
       >
         <GoogleIcon />
