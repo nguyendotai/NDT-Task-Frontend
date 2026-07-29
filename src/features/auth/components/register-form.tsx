@@ -28,7 +28,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   const isSubmitting = isRegistering || isLoggingIn;
@@ -36,7 +36,11 @@ export function RegisterForm() {
   const onSubmit = async (values: RegisterFormValues) => {
     setFormError(null);
     try {
-      await registerUser(values).unwrap();
+      await registerUser({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }).unwrap();
       const loginResult = await login({
         email: values.email,
         password: values.password,
@@ -98,6 +102,21 @@ export function RegisterForm() {
           />
           {errors.password ? (
             <p className="text-xs text-destructive">{errors.password.message}</p>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Nhập lại mật khẩu"
+            aria-invalid={!!errors.confirmPassword}
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword ? (
+            <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
           ) : null}
         </div>
 
