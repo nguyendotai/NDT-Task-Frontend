@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const createWorkspaceSchema = z.object({
-  name: z.string().min(3, "Tên Workspace tối thiểu 3 ký tự"),
+  name: z.string().min(3, "Workspace name must be at least 3 characters"),
   type: z.enum(["KANBAN", "SCRUM"], {
-    message: "Vui lòng chọn loại Workspace",
+    message: "Please select a workspace type",
   }),
   description: z.string().max(1000).optional(),
 });

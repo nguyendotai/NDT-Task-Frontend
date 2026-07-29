@@ -6,15 +6,15 @@ import { Button } from "@/shared/components/ui/button";
 import { useStarTaskMutation, useUnstarTaskMutation, type Task } from "@/features/task";
 
 const PRIORITY_LABEL: Record<Task["priority"], string> = {
-  LOW: "Thấp",
-  MEDIUM: "Trung bình",
-  HIGH: "Cao",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
 };
 
 const STATUS_LABEL: Record<Task["status"], string> = {
-  TODO: "Chưa làm",
-  IN_PROGRESS: "Đang làm",
-  DONE: "Đã xong",
+  TODO: "To do",
+  IN_PROGRESS: "In progress",
+  DONE: "Done",
 };
 
 export function TaskListItem({ task }: { task: Task }) {
@@ -35,7 +35,7 @@ export function TaskListItem({ task }: { task: Task }) {
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label={task.isStarred ? "Bỏ đánh dấu sao" : "Đánh dấu sao"}
+        aria-label={task.isStarred ? "Unstar" : "Star"}
         onClick={() => (task.isStarred ? unstar(task.id) : star(task.id))}
       >
         <StarIcon

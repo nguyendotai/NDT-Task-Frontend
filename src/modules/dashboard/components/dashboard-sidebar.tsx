@@ -58,7 +58,7 @@ export function DashboardSidebar() {
           <MessageCircleIcon className="size-4" />
           Chat
           <Badge variant="outline" className="ml-auto text-[10px]">
-            Sắp ra mắt
+            Coming soon
           </Badge>
         </button>
       </div>

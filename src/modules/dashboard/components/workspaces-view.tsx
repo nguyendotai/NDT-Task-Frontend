@@ -14,7 +14,7 @@ export function WorkspacesView() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="font-heading text-2xl font-bold">Workspace của tôi</h1>
+        <h1 className="font-heading text-2xl font-bold">My workspaces</h1>
         <CreateWorkspaceDialog />
       </div>
 
@@ -29,18 +29,18 @@ export function WorkspacesView() {
         </div>
       ) : isError ? (
         <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-          Không tải được danh sách Workspace.{" "}
+          Couldn&apos;t load your workspaces.{" "}
           <button
             type="button"
             onClick={() => refetch()}
             className="font-medium text-foreground underline underline-offset-2"
           >
-            Thử lại
+            Retry
           </button>
         </div>
       ) : workspaces.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-          Bạn chưa có Workspace nào.
+          You don&apos;t have any workspaces yet.
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
