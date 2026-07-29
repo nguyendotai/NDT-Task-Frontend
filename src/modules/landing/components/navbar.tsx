@@ -3,44 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  LayoutDashboardIcon,
-  LayoutGridIcon,
-  LogOutIcon,
-  MenuIcon,
-  UserIcon,
-  XIcon,
-} from "lucide-react";
+import { LayoutGridIcon, MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
-import { clearCredentials, selectCurrentUser, useLogoutMutation } from "@/features/auth";
+import {
+  AccountMenu,
+  clearCredentials,
+  selectCurrentUser,
+  useLogoutMutation,
+} from "@/features/auth";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
 ];
-
-function UserAvatar({ name, avatarUrl }: { name: string; avatarUrl: string | null }) {
-  if (avatarUrl) {
-    // eslint-disable-next-line @next/next/no-img-element -- avatar Cloudinary domain chưa cấu hình next/image
-    return <img src={avatarUrl} alt={name} className="size-9 rounded-full object-cover" />;
-  }
-  return (
-    <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-semibold text-white">
-      {name.charAt(0).toUpperCase()}
-    </span>
-  );
-}
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -90,44 +69,7 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <button type="button" aria-label="Tài khoản">
-                    <UserAvatar name={user.name} avatarUrl={user.avatarUrl} />
-                  </button>
-                }
-              />
-              <DropdownMenuContent align="end" className="w-64">
-                <div className="flex items-center gap-2.5 px-2 py-2">
-                  <UserAvatar name={user.name} avatarUrl={user.avatarUrl} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {user.name}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/profile" />} className="py-1.5">
-                  <UserIcon className="text-muted-foreground" />
-                  Hồ sơ của tôi
-                </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href="/dashboard" />} className="py-1.5">
-                  <LayoutDashboardIcon className="text-muted-foreground" />
-                  Go to Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  className="py-1.5"
-                  onClick={handleLogout}
-                >
-                  <LogOutIcon />
-                  Đăng xuất
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <AccountMenu />
           ) : (
             <>
               <Button variant="ghost" render={<Link href="/login" />}>

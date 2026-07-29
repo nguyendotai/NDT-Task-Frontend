@@ -1,6 +1,7 @@
 export { RegisterForm } from "./components/register-form";
 export { LoginForm } from "./components/login-form";
 export { AuthBootstrap } from "./components/auth-bootstrap";
+export { AccountMenu, UserAvatar } from "./components/account-menu";
 export {
   selectCurrentUser,
   selectAccessToken,
