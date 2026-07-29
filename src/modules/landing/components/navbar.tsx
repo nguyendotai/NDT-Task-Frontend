@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { ThemeToggle } from "@/shared/components/theme-toggle";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
@@ -37,6 +38,7 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <Button variant="ghost" render={<Link href="/login" />}>
             Login
           </Button>
@@ -48,15 +50,18 @@ export function Navbar() {
           </Button>
         </div>
 
-        <button
-          type="button"
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMenuOpen}
-          className="flex size-9 items-center justify-center rounded-lg text-foreground md:hidden"
-          onClick={() => setIsMenuOpen((open) => !open)}
-        >
-          {isMenuOpen ? <XIcon className="size-5" /> : <MenuIcon className="size-5" />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            className="flex size-9 items-center justify-center rounded-lg text-foreground"
+            onClick={() => setIsMenuOpen((open) => !open)}
+          >
+            {isMenuOpen ? <XIcon className="size-5" /> : <MenuIcon className="size-5" />}
+          </button>
+        </div>
       </nav>
 
       {isMenuOpen ? (
