@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowRightIcon, PlayIcon, SparklesIcon } from "lucide-react";
+import { PlayIcon, SparklesIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { DashboardMockup } from "@/modules/landing/components/dashboard-mockup";
+import { HeroCta } from "@/modules/landing/components/hero-cta";
 
 const HIGHLIGHTS = [
   { title: "Kanban & Scrum", description: "Chọn quy trình phù hợp cho từng Workspace" },
@@ -37,14 +37,7 @@ export function Hero() {
           dàng hơn — hỗ trợ cả Kanban và Scrum trong cùng một nền tảng.
         </p>
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-          <Button
-            size="lg"
-            render={<Link href="/register" />}
-            className="h-11 gap-2 bg-gradient-to-r from-blue-500 to-violet-500 px-6 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-          >
-            Get Started Free
-            <ArrowRightIcon className="size-4" />
-          </Button>
+          <HeroCta />
           <Button
             size="lg"
             variant="outline"

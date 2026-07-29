@@ -2,9 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LayoutGridIcon, MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
+import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
+import { useAppSelector } from "@/shared/hooks/use-app-selector";
+import { clearCredentials, selectCurrentUser, useLogoutMutation } from "@/features/auth";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
@@ -12,8 +23,35 @@ const NAV_LINKS = [
   { label: "FAQ", href: "#faq" },
 ];
 
+function UserAvatar({ name, avatarUrl }: { name: string; avatarUrl: string | null }) {
+  if (avatarUrl) {
+    // eslint-disable-next-line @next/next/no-img-element -- avatar Cloudinary domain chưa cấu hình next/image
+    return <img src={avatarUrl} alt={name} className="size-9 rounded-full object-cover" />;
+  }
+  return (
+    <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-semibold text-white">
+      {name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
+
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+    } catch {
+      // Bỏ qua lỗi API logout — vẫn xoá phiên phía client để đảm bảo UX.
+    }
+    dispatch(clearCredentials());
+    setIsMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -44,15 +82,41 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
-          <Button variant="ghost" render={<Link href="/login" />}>
-            Login
-          </Button>
-          <Button
-            render={<Link href="/register" />}
-            className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
-          >
-            Get Started
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button type="button" aria-label="Tài khoản">
+                    <UserAvatar name={user.name} avatarUrl={user.avatarUrl} />
+                  </button>
+                }
+              />
+              <DropdownMenuContent align="end" className="min-w-48">
+                <DropdownMenuItem render={<Link href="/profile" />}>
+                  Hồ sơ của tôi
+                </DropdownMenuItem>
+                <DropdownMenuItem render={<Link href="/dashboard" />}>
+                  Go to Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                  Đăng xuất
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" render={<Link href="/login" />}>
+                Login
+              </Button>
+              <Button
+                render={<Link href="/register" />}
+                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+              >
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
@@ -83,15 +147,39 @@ export function Navbar() {
               </a>
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border/60 pt-4">
-              <Button variant="outline" render={<Link href="/login" />}>
-                Login
-              </Button>
-              <Button
-                render={<Link href="/register" />}
-                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
-              >
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    Hồ sơ của tôi
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <Button variant="outline" onClick={handleLogout}>
+                    Đăng xuất
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" render={<Link href="/login" />}>
+                    Login
+                  </Button>
+                  <Button
+                    render={<Link href="/register" />}
+                    className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
