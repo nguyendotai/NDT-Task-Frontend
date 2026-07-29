@@ -53,7 +53,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
           variant="ghost"
           size="icon-sm"
           className="absolute top-2 right-2"
-          aria-label={workspace.isStarred ? "Bỏ đánh dấu sao" : "Đánh dấu sao"}
+          aria-label={workspace.isStarred ? "Unstar" : "Star"}
           onClick={() =>
             workspace.isStarred ? unstar(workspace.id) : star(workspace.id)
           }

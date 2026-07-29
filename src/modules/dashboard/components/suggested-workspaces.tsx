@@ -12,7 +12,7 @@ export function SuggestedWorkspaces() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-lg font-bold">Workspace đề xuất</h2>
+      <h2 className="font-heading text-lg font-bold">Suggested workspaces</h2>
 
       {isLoading ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -25,18 +25,18 @@ export function SuggestedWorkspaces() {
         </div>
       ) : isError ? (
         <div className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-          Không tải được danh sách Workspace.{" "}
+          Couldn&apos;t load your workspaces.{" "}
           <button
             type="button"
             onClick={() => refetch()}
             className="font-medium text-foreground underline underline-offset-2"
           >
-            Thử lại
+            Retry
           </button>
         </div>
       ) : suggested.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
-          Bạn chưa có Workspace nào — hãy tạo Workspace đầu tiên.
+          You don&apos;t have any workspaces yet — create your first one.
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

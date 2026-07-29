@@ -26,13 +26,13 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
   if (isError || !workspace) {
     return (
       <div className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-        Không tìm thấy Workspace hoặc bạn không có quyền truy cập.{" "}
+        Workspace not found, or you don&apos;t have access to it.{" "}
         <button
           type="button"
           onClick={() => refetch()}
           className="font-medium text-foreground underline underline-offset-2"
         >
-          Thử lại
+          Retry
         </button>
       </div>
     );
@@ -49,7 +49,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
           <p className="mt-1 text-sm text-muted-foreground">{workspace.description}</p>
         ) : null}
         <p className="mt-2 text-xs text-muted-foreground">
-          {workspace.membersCount} thành viên
+          {workspace.membersCount} member{workspace.membersCount === 1 ? "" : "s"}
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
                 className="rounded-2xl border border-border/60 bg-card p-4"
               >
                 <p className="text-sm font-medium text-foreground">{column.name}</p>
-                <p className="mt-1 text-xs text-muted-foreground">Chưa có Task</p>
+                <p className="mt-1 text-xs text-muted-foreground">No tasks yet</p>
               </div>
             ))}
           </div>
@@ -73,7 +73,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
       ) : null}
 
       <p className="text-sm text-muted-foreground">
-        Quản lý chi tiết Task/Board sẽ được bổ sung ở phần Board Management sau này.
+        Full Task/Board management is coming later as part of Board Management.
       </p>
     </div>
   );

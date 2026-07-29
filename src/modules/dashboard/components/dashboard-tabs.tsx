@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Badge } from "@/shared/components/ui/badge";
 import { useListMyTasksQuery, type Task } from "@/features/task";
 import { useListMyWorkspacesQuery, type WorkspaceSummary } from "@/features/workspace";
 import { WorkspaceCard } from "./workspace-card";
@@ -58,7 +59,7 @@ function TabPanel({
       {workspaces.length > 0 ? (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Workspace
+            Workspaces
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {workspaces.map((workspace) => (
@@ -71,7 +72,7 @@ function TabPanel({
       {tasks.length > 0 ? (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Task
+            Tasks
           </p>
           <div className="flex flex-col gap-2">
             {tasks.map((task) => (
@@ -84,6 +85,12 @@ function TabPanel({
   );
 }
 
+interface TabDef {
+  value: string;
+  label: string;
+  count: number;
+}
+
 export function DashboardTabs() {
   const assigned = useListMyTasksQuery({ scope: "assignee" });
   const starredTasks = useListMyTasksQuery({ starred: true });
@@ -91,13 +98,32 @@ export function DashboardTabs() {
   const workedOn = useListMyTasksQuery({ scope: "assignee-or-creator" });
   const unfinished = useListMyTasksQuery({ done: false });
 
+  const tabs: TabDef[] = [
+    { value: "assigned", label: "Assigned to me", count: assigned.data?.length ?? 0 },
+    {
+      value: "starred",
+      label: "Starred",
+      count: (starredTasks.data?.length ?? 0) + (starredWorkspaces.data?.length ?? 0),
+    },
+    { value: "worked-on", label: "Worked on", count: workedOn.data?.length ?? 0 },
+    { value: "unfinished", label: "Unfinished", count: unfinished.data?.length ?? 0 },
+  ];
+
   return (
     <Tabs defaultValue="assigned">
-      <TabsList variant="line">
-        <TabsTrigger value="assigned">Assigned to me</TabsTrigger>
-        <TabsTrigger value="starred">Starred</TabsTrigger>
-        <TabsTrigger value="worked-on">Worked on</TabsTrigger>
-        <TabsTrigger value="unfinished">Unfinished</TabsTrigger>
+      <TabsList className="h-auto gap-0.5 rounded-full bg-muted p-1 dark:bg-[#545454]">
+        {tabs.map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="gap-1.5 rounded-full px-3.5 py-1.5 data-active:shadow-sm"
+          >
+            {tab.label}
+            {tab.count > 0 ? (
+              <Badge className="rounded-full px-1.5">{tab.count}</Badge>
+            ) : null}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
       <TabsContent value="assigned">
@@ -105,7 +131,7 @@ export function DashboardTabs() {
           workspaces={dedupeWorkspacesFromTasks(assigned.data ?? [])}
           tasks={assigned.data ?? []}
           isLoading={assigned.isLoading}
-          emptyMessage="Chưa có Task nào được giao cho bạn."
+          emptyMessage="You don't have any tasks assigned yet."
         />
       </TabsContent>
 
@@ -114,7 +140,7 @@ export function DashboardTabs() {
           workspaces={starredWorkspaces.data ?? []}
           tasks={starredTasks.data ?? []}
           isLoading={starredTasks.isLoading || starredWorkspaces.isLoading}
-          emptyMessage="Bạn chưa đánh dấu sao Workspace hoặc Task nào."
+          emptyMessage="You haven't starred any workspace or task yet."
         />
       </TabsContent>
 
@@ -123,7 +149,7 @@ export function DashboardTabs() {
           workspaces={dedupeWorkspacesFromTasks(workedOn.data ?? [])}
           tasks={workedOn.data ?? []}
           isLoading={workedOn.isLoading}
-          emptyMessage="Chưa có hoạt động nào gần đây."
+          emptyMessage="No recent activity yet."
         />
       </TabsContent>
 
@@ -132,7 +158,7 @@ export function DashboardTabs() {
           workspaces={dedupeWorkspacesFromTasks(unfinished.data ?? [])}
           tasks={unfinished.data ?? []}
           isLoading={unfinished.isLoading}
-          emptyMessage="Không có Task nào chưa hoàn thành. 🎉"
+          emptyMessage="No unfinished tasks. 🎉"
         />
       </TabsContent>
     </Tabs>

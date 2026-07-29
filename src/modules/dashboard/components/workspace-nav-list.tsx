@@ -27,7 +27,7 @@ export function WorkspaceNavList() {
 
       {recent.length === 0 ? (
         <p className="px-3 py-1.5 text-xs text-muted-foreground">
-          Chưa có Workspace nào
+          No workspaces yet
         </p>
       ) : (
         recent.map((workspace) => (

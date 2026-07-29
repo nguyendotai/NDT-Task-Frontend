@@ -72,13 +72,13 @@ export function CreateWorkspaceDialog() {
         render={
           <Button className="gap-1.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90">
             <PlusIcon className="size-4" />
-            Tạo Workspace
+            Create Workspace
           </Button>
         }
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Tạo Workspace mới</DialogTitle>
+          <DialogTitle>Create a new Workspace</DialogTitle>
         </DialogHeader>
 
         <form
@@ -87,10 +87,10 @@ export function CreateWorkspaceDialog() {
           className="flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="workspace-name">Tên Workspace</Label>
+            <Label htmlFor="workspace-name">Workspace name</Label>
             <Input
               id="workspace-name"
-              placeholder="Ví dụ: Đội Marketing"
+              placeholder="e.g. Marketing Team"
               aria-invalid={!!errors.name}
               {...register("name")}
             />
@@ -100,14 +100,14 @@ export function CreateWorkspaceDialog() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="workspace-type">Loại Workspace</Label>
+            <Label htmlFor="workspace-type">Workspace type</Label>
             <Controller
               control={control}
               name="type"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger id="workspace-type" className="w-full">
-                    <SelectValue placeholder="Chọn loại Workspace" />
+                    <SelectValue placeholder="Select a workspace type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="KANBAN">Kanban</SelectItem>
@@ -122,10 +122,10 @@ export function CreateWorkspaceDialog() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="workspace-description">Mô tả (tùy chọn)</Label>
+            <Label htmlFor="workspace-description">Description (optional)</Label>
             <Textarea
               id="workspace-description"
-              placeholder="Mô tả ngắn về Workspace này"
+              placeholder="A short description of this workspace"
               rows={3}
               {...register("description")}
             />
@@ -141,7 +141,7 @@ export function CreateWorkspaceDialog() {
               disabled={isLoading}
               className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
             >
-              {isLoading ? "Đang tạo..." : "Tạo Workspace"}
+              {isLoading ? "Creating..." : "Create Workspace"}
             </Button>
           </DialogFooter>
         </form>

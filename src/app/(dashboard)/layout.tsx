@@ -25,7 +25,7 @@ export default function DashboardLayout({
   if (!isBootstrapped || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-muted-foreground">Đang tải...</p>
+        <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     );
   }
