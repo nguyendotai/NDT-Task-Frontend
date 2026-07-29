@@ -38,15 +38,20 @@ export function Faq() {
   return (
     <section id="faq" className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="text-center">
-        <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+        <p className="text-sm font-semibold tracking-widest text-blue-500">FAQ</p>
+        <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
           Frequently asked questions
         </h2>
       </div>
 
-      <Accordion className="mt-10" defaultValue={[]}>
+      <Accordion className="mt-10 gap-3" defaultValue={[]}>
         {FAQS.map((faq) => (
-          <AccordionItem key={faq.question} value={faq.question}>
-            <AccordionTrigger>{faq.question}</AccordionTrigger>
+          <AccordionItem
+            key={faq.question}
+            value={faq.question}
+            className="rounded-xl border border-border/60 bg-card/60 px-4 not-last:border-b"
+          >
+            <AccordionTrigger className="hover:no-underline">{faq.question}</AccordionTrigger>
             <AccordionContent>
               <p className="text-muted-foreground">{faq.answer}</p>
             </AccordionContent>

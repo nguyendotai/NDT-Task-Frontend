@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MenuIcon, XIcon } from "lucide-react";
+import { LayoutGridIcon, MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 
@@ -18,14 +18,19 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-bold text-white">
-            N
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white">
+            <LayoutGridIcon className="size-4.5" />
           </span>
-          NDT Task
+          <span className="leading-tight">
+            <span className="block font-heading text-sm font-bold tracking-wide">NDT</span>
+            <span className="block text-[10px] font-medium tracking-widest text-muted-foreground">
+              TASK
+            </span>
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-8 md:absolute md:left-1/2 md:flex md:-translate-x-1/2">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
