@@ -1,5 +1,7 @@
 export { RegisterForm } from "./components/register-form";
 export { LoginForm } from "./components/login-form";
+export { ForgotPasswordForm } from "./components/forgot-password-form";
+export { ResetPasswordForm } from "./components/reset-password-form";
 export { AuthBootstrap } from "./components/auth-bootstrap";
 export { AccountMenu, UserAvatar } from "./components/account-menu";
 export {

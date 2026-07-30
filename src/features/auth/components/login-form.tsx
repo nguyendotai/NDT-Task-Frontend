@@ -66,7 +66,15 @@ export function LoginForm() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="password" className="text-sm">Mật khẩu</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-sm">Mật khẩu</Label>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground hover:underline"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
           <Input
             id="password"
             type="password"
