@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { ChevronRightIcon } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
 import { useListMyWorkspacesQuery } from "@/features/workspace";
 import { WorkspaceCard } from "./workspace-card";
 
@@ -12,14 +15,26 @@ export function SuggestedWorkspaces() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="gap-1"
+          render={<Link href="/workspaces" />}
+        >
+          View all
+          <ChevronRightIcon className="size-3.5" />
+        </Button>
+      </div>
 
       {isLoading ? (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="grid grid-cols-5 gap-3">
           {Array.from({ length: SUGGESTED_LIMIT }).map((_, index) => (
             <div
               key={index}
-              className="h-40 w-64 shrink-0 animate-pulse rounded-2xl border border-border/60 bg-muted/50 sm:w-72"
+              className="h-40 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
             />
           ))}
         </div>
@@ -39,11 +54,9 @@ export function SuggestedWorkspaces() {
           You don&apos;t have any workspaces yet — create your first one.
         </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="grid grid-cols-5 gap-3">
           {suggested.map((workspace) => (
-            <div key={workspace.id} className="w-64 shrink-0 sm:w-72">
-              <WorkspaceCard workspace={workspace} />
-            </div>
+            <WorkspaceCard key={workspace.id} workspace={workspace} />
           ))}
         </div>
       )}
