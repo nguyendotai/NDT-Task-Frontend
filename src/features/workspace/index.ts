@@ -27,7 +27,6 @@ export type {
   WorkspaceDetail,
   WorkspaceBoard,
   WorkspaceColumn,
-  ColumnMappedStatus,
   WorkspaceRole,
   WorkspaceType,
   WorkspaceVisibility,

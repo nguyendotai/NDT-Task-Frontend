@@ -11,12 +11,6 @@ const PRIORITY_LABEL: Record<Task["priority"], string> = {
   HIGH: "High",
 };
 
-const STATUS_LABEL: Record<Task["status"], string> = {
-  TODO: "To do",
-  IN_PROGRESS: "In progress",
-  DONE: "Done",
-};
-
 export function TaskListItem({ task }: { task: Task }) {
   const [star] = useStarTaskMutation();
   const [unstar] = useUnstarTaskMutation();
@@ -30,7 +24,7 @@ export function TaskListItem({ task }: { task: Task }) {
       <Badge variant="outline" className="hidden sm:inline-flex">
         {PRIORITY_LABEL[task.priority]}
       </Badge>
-      <Badge variant="secondary">{STATUS_LABEL[task.status]}</Badge>
+      <Badge variant="secondary">{task.status}</Badge>
       <Button
         type="button"
         variant="ghost"

@@ -1,5 +1,4 @@
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
-export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 export type TaskListScope = "assignee" | "assignee-or-creator";
 
 export interface Task {
@@ -11,7 +10,8 @@ export interface Task {
   title: string;
   description?: string | null;
   priority: TaskPriority;
-  status: TaskStatus;
+  // task.md #4: status luôn mirror tên Column hiện tại — không còn enum cố định.
+  status: string;
   order: number;
   backlogOrder?: number | null;
   startDate?: string | null;

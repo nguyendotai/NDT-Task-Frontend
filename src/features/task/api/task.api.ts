@@ -1,5 +1,5 @@
 import { baseApi } from "@/shared/services/base-api";
-import type { Task, TaskListScope, TaskPriority, TaskStatus } from "../types/task.types";
+import type { Task, TaskListScope, TaskPriority } from "../types/task.types";
 
 interface ListMyTasksParams {
   done?: boolean;
@@ -38,7 +38,6 @@ interface UpdateTaskRequest {
   title?: string;
   description?: string;
   priority?: TaskPriority;
-  status?: TaskStatus;
   startDate?: string;
   dueDate?: string;
   columnId?: string;

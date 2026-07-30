@@ -18,14 +18,8 @@ import type { Task } from "@/features/task";
 import { BoardTaskCard } from "./board-task-card";
 import { ColumnFormDialog } from "./column-form-dialog";
 
-const COLUMN_DOT_CLASS: Record<string, string> = {
-  TODO: "bg-blue-400",
-  IN_PROGRESS: "bg-amber-500",
-  DONE: "bg-green-500",
-};
-
-function getColumnDotClass(mappedStatus: WorkspaceColumn["mappedStatus"]) {
-  return mappedStatus ? (COLUMN_DOT_CLASS[mappedStatus] ?? "bg-primary") : "bg-muted-foreground/40";
+function getColumnDotClass(isDoneColumn: WorkspaceColumn["isDoneColumn"]) {
+  return isDoneColumn ? "bg-green-500" : "bg-muted-foreground/40";
 }
 
 export function BoardColumn({
@@ -83,7 +77,7 @@ export function BoardColumn({
           {...attributes}
         >
           <span
-            className={`size-2 shrink-0 rounded-full ${getColumnDotClass(column.mappedStatus)}`}
+            className={`size-2 shrink-0 rounded-full ${getColumnDotClass(column.isDoneColumn)}`}
           />
           <p className="truncate text-sm font-semibold text-foreground">{column.name}</p>
         </div>
