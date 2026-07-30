@@ -7,6 +7,16 @@ import type { WorkspaceColumn } from "@/features/workspace";
 import type { Task } from "@/features/task";
 import { BoardTaskCard } from "./board-task-card";
 
+const COLUMN_DOT_CLASS: Record<string, string> = {
+  "to do": "bg-blue-400",
+  "in progress": "bg-amber-500",
+  done: "bg-green-500",
+};
+
+function getColumnDotClass(name: string) {
+  return COLUMN_DOT_CLASS[name.trim().toLowerCase()] ?? "bg-primary";
+}
+
 export function BoardColumn({
   column,
   tasks,
@@ -23,16 +33,21 @@ export function BoardColumn({
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
-    <div className="flex w-72 shrink-0 flex-col gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3">
+    <div className="flex h-[calc(100vh-22rem)] min-h-[560px] w-72 shrink-0 flex-col gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3">
       <div className="flex items-center justify-between px-1">
-        <p className="text-sm font-semibold text-foreground">{column.name}</p>
-        <span className="text-xs text-muted-foreground">{tasks.length}</span>
+        <div className="flex items-center gap-2">
+          <span className={`size-2 rounded-full ${getColumnDotClass(column.name)}`} />
+          <p className="text-sm font-semibold text-foreground">{column.name}</p>
+        </div>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          {tasks.length}
+        </span>
       </div>
 
       <div
         ref={setNodeRef}
         className={
-          "flex min-h-24 flex-1 flex-col gap-2 rounded-xl transition-colors " +
+          "flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto rounded-xl transition-colors " +
           (isOver ? "bg-primary/5 ring-2 ring-primary/30" : "")
         }
       >

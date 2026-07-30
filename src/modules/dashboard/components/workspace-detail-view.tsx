@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { SettingsIcon } from "lucide-react";
+import { ArrowLeftIcon, GlobeIcon, LockIcon, SettingsIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { useGetWorkspaceQuery } from "@/features/workspace";
+import { getWorkspaceAvatarGradient, useGetWorkspaceQuery } from "@/features/workspace";
 import { BoardView } from "@/modules/board/components/board-view";
 import { ListView } from "@/modules/board/components/list-view";
 import { MemberView } from "@/modules/board/components/member-view";
@@ -57,25 +57,52 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-2xl font-bold">{workspace.name}</h1>
-            <Badge variant="outline">{workspace.type}</Badge>
+    <div className="flex flex-col gap-4">
+      <Link
+        href="/workspaces"
+        className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeftIcon className="size-4" />
+        Back to workspaces
+      </Link>
+
+      <div className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <span
+            className={`flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-3xl shadow-sm ${getWorkspaceAvatarGradient(
+              workspace.avatarColor,
+            )}`}
+          >
+            {workspace.avatarEmoji}
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-heading text-2xl font-bold">{workspace.name}</h1>
+              <Badge className="border-transparent bg-gradient-to-r from-blue-500 to-violet-500 text-white">
+                {workspace.type}
+              </Badge>
+              <Badge variant={workspace.visibility === "PUBLIC" ? "secondary" : "outline"}>
+                {workspace.visibility === "PUBLIC" ? (
+                  <GlobeIcon className="size-3" />
+                ) : (
+                  <LockIcon className="size-3" />
+                )}
+                {workspace.visibility === "PUBLIC" ? "Public" : "Private"}
+              </Badge>
+            </div>
+            {workspace.description ? (
+              <p className="mt-1 text-sm text-muted-foreground">{workspace.description}</p>
+            ) : null}
+            <p className="mt-2 text-xs text-muted-foreground">
+              {workspace.membersCount} member{workspace.membersCount === 1 ? "" : "s"}
+            </p>
           </div>
-          {workspace.description ? (
-            <p className="mt-1 text-sm text-muted-foreground">{workspace.description}</p>
-          ) : null}
-          <p className="mt-2 text-xs text-muted-foreground">
-            {workspace.membersCount} member{workspace.membersCount === 1 ? "" : "s"}
-          </p>
         </div>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="gap-1.5"
+          className="gap-1.5 self-start sm:self-center"
           render={<Link href={`/workspaces/${workspaceId}/settings`} />}
         >
           <SettingsIcon className="size-3.5" />
