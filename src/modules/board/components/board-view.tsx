@@ -31,6 +31,7 @@ import { AddColumnButton } from "./add-column-button";
 import { BoardColumn } from "./board-column";
 import { BoardTaskCard } from "./board-task-card";
 import { TaskFormDialog } from "./task-form-dialog";
+import { TaskDetailModal } from "./task-detail-modal";
 
 export function BoardView({
   workspaceId,
@@ -59,7 +60,7 @@ export function BoardView({
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<WorkspaceColumn | null>(null);
   const [createColumnId, setCreateColumnId] = useState<string | null>(null);
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const columns = useMemo(
     () => (board?.columns ?? []).slice().sort((a, b) => a.order - b.order),
@@ -179,7 +180,7 @@ export function BoardView({
                 tasks={tasksByColumn.get(column.id) ?? []}
                 assigneeNameById={assigneeNameById}
                 onAddTask={() => setCreateColumnId(column.id)}
-                onTaskClick={(task) => setEditTask(task)}
+                onTaskClick={(task) => setSelectedTaskId(task.id)}
               />
             ))}
           </SortableContext>
@@ -210,12 +211,11 @@ export function BoardView({
         defaultColumnId={createColumnId ?? undefined}
       />
 
-      <TaskFormDialog
+      <TaskDetailModal
         workspaceId={workspaceId}
+        taskId={selectedTaskId}
         columns={columns}
-        open={editTask !== null}
-        onOpenChange={(open) => !open && setEditTask(null)}
-        task={editTask ?? undefined}
+        onOpenChange={(open) => !open && setSelectedTaskId(null)}
       />
     </>
   );
