@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { ChevronRightIcon } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
 import { useListMyWorkspacesQuery } from "@/features/workspace";
 import { WorkspaceCard } from "./workspace-card";
 
@@ -12,7 +15,19 @@ export function SuggestedWorkspaces() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="gap-1"
+          render={<Link href="/workspaces" />}
+        >
+          View all
+          <ChevronRightIcon className="size-3.5" />
+        </Button>
+      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-5 gap-3">
