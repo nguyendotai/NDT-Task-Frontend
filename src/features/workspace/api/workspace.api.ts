@@ -1,6 +1,5 @@
 import { baseApi } from "@/shared/services/base-api";
 import type {
-  ColumnMappedStatus,
   Workspace,
   WorkspaceBoard,
   WorkspaceColumn,
@@ -47,13 +46,13 @@ interface RemoveMemberRequest {
 interface CreateColumnRequest {
   workspaceId: string;
   name: string;
-  mappedStatus?: ColumnMappedStatus | null;
+  isDoneColumn?: boolean;
 }
 
 interface UpdateColumnRequest {
   id: string;
   name?: string;
-  mappedStatus?: ColumnMappedStatus | null;
+  isDoneColumn?: boolean;
 }
 
 interface ReorderColumnsRequest {

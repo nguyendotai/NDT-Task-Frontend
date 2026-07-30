@@ -26,16 +26,31 @@ import {
   useUpdateTaskMutation,
   type Task,
 } from "@/features/task";
+import { useListSprintsQuery } from "@/features/sprint";
 import { AddColumnButton } from "./add-column-button";
 import { BoardColumn } from "./board-column";
 import { BoardTaskCard } from "./board-task-card";
 import { TaskFormDialog } from "./task-form-dialog";
 
-export function BoardView({ workspaceId }: { workspaceId: string }) {
+export function BoardView({
+  workspaceId,
+  isScrum = false,
+}: {
+  workspaceId: string;
+  isScrum?: boolean;
+}) {
   const { data: board, isLoading: isBoardLoading } = useGetWorkspaceBoardQuery(workspaceId);
-  const { data: tasks, isLoading: isTasksLoading } = useListTasksByWorkspaceQuery({
+  // board.md #4: Scrum Board chỉ hiển thị Task thuộc Sprint đang Active —
+  // Product Backlog (Task chưa vào Sprint) được quản lý riêng ở tab Sprint.
+  const { data: sprints, isLoading: isSprintsLoading } = useListSprintsQuery(
     workspaceId,
-  });
+    { skip: !isScrum },
+  );
+  const activeSprint = sprints?.find((sprint) => sprint.status === "ACTIVE");
+  const { data: tasks, isLoading: isTasksLoading } = useListTasksByWorkspaceQuery(
+    { workspaceId, sprintId: activeSprint?.id },
+    { skip: isScrum && !activeSprint },
+  );
   const { data: members } = useListMembersQuery(workspaceId);
   const [updateTask] = useUpdateTaskMutation();
   const [reorderColumns] = useReorderColumnsMutation();
@@ -121,7 +136,7 @@ export function BoardView({ workspaceId }: { workspaceId: string }) {
     }
   }
 
-  if (isBoardLoading || isTasksLoading) {
+  if (isBoardLoading || isTasksLoading || (isScrum && isSprintsLoading)) {
     return (
       <div className="flex gap-3">
         {Array.from({ length: 3 }).map((_, index) => (
@@ -138,6 +153,15 @@ export function BoardView({ workspaceId }: { workspaceId: string }) {
     return (
       <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
         This Board has no columns yet.
+      </p>
+    );
+  }
+
+  if (isScrum && !activeSprint) {
+    return (
+      <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+        No active Sprint. Start a Planned Sprint in the Sprint tab to see its
+        tasks here.
       </p>
     );
   }

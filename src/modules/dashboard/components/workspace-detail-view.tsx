@@ -13,6 +13,7 @@ import { TimelineView } from "@/modules/board/components/timeline-view";
 import { CalendarView } from "@/modules/board/components/calendar-view";
 import { ArchiveView } from "@/modules/board/components/archive-view";
 import { DocsView } from "@/modules/board/components/docs-view";
+import { SprintView } from "@/modules/board/components/sprint-view";
 
 const TABS = [
   { value: "list", label: "List" },
@@ -23,6 +24,10 @@ const TABS = [
   { value: "member", label: "Member" },
   { value: "docs", label: "Docs" },
 ] as const;
+
+// sprint.md: Sprint chỉ tồn tại trong Workspace loại Scrum — tab riêng, chèn
+// ngay sau Board để gần với luồng làm việc chính.
+const SPRINT_TAB = { value: "sprint", label: "Sprint" } as const;
 
 export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
   const {
@@ -55,6 +60,11 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
       </div>
     );
   }
+
+  const isScrum = workspace.type === "SCRUM";
+  const tabs = isScrum
+    ? [...TABS.slice(0, 3), SPRINT_TAB, ...TABS.slice(3)]
+    : TABS;
 
   return (
     <div className="flex flex-col gap-4">
@@ -112,7 +122,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
 
       <Tabs defaultValue="board">
         <TabsList className="h-auto flex-wrap gap-0.5 rounded-full bg-muted p-1 dark:bg-[#545454]">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
@@ -130,8 +140,13 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
           <TimelineView workspaceId={workspaceId} />
         </TabsContent>
         <TabsContent value="board" className="mt-4">
-          <BoardView workspaceId={workspaceId} />
+          <BoardView workspaceId={workspaceId} isScrum={isScrum} />
         </TabsContent>
+        {isScrum ? (
+          <TabsContent value="sprint" className="mt-4">
+            <SprintView workspaceId={workspaceId} />
+          </TabsContent>
+        ) : null}
         <TabsContent value="calendar" className="mt-4">
           <CalendarView workspaceId={workspaceId} />
         </TabsContent>

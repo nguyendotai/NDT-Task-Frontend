@@ -24,7 +24,6 @@ import {
   useListTasksByWorkspaceQuery,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABEL,
-  STATUS_LABEL,
   type Task,
 } from "@/features/task";
 import { TaskFormDialog } from "./task-form-dialog";
@@ -102,7 +101,7 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{STATUS_LABEL[task.status]}</Badge>
+                    <Badge variant="secondary">{task.status}</Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "—"}

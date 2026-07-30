@@ -27,16 +27,15 @@ export interface WorkspaceDetail extends Workspace {
   membersCount: number;
 }
 
-// Không import TaskStatus từ features/task (cấm import chéo feature theo
-// folder-structure.md) — tự khai báo lại union trùng giá trị.
-export type ColumnMappedStatus = "TODO" | "IN_PROGRESS" | "DONE";
-
 export interface WorkspaceColumn {
   id: string;
   boardId: string;
   name: string;
   order: number;
-  mappedStatus: ColumnMappedStatus | null;
+  // task.md #4: đánh dấu Column "đã xong" để lọc done=true/false — mỗi
+  // Column tự là 1 trạng thái riêng (Task.status = tên Column), không giới
+  // hạn số lượng cố định.
+  isDoneColumn: boolean;
 }
 
 export interface WorkspaceBoard {

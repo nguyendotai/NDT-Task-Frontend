@@ -1,5 +1,5 @@
 import { baseApi } from "@/shared/services/base-api";
-import type { Task, TaskListScope, TaskPriority, TaskStatus } from "../types/task.types";
+import type { Task, TaskListScope, TaskPriority } from "../types/task.types";
 
 interface ListMyTasksParams {
   done?: boolean;
@@ -19,6 +19,9 @@ function toQueryParams(params?: ListMyTasksParams) {
 interface ListWorkspaceTasksParams {
   workspaceId: string;
   done?: boolean;
+  // Chỉ có ý nghĩa với Workspace loại Scrum (board.md #4): "backlog" = Task
+  // chưa vào Sprint nào, 1 Sprint id cụ thể = chỉ Task thuộc đúng Sprint đó.
+  sprintId?: string;
 }
 
 interface CreateTaskRequest {
@@ -38,7 +41,6 @@ interface UpdateTaskRequest {
   title?: string;
   description?: string;
   priority?: TaskPriority;
-  status?: TaskStatus;
   startDate?: string;
   dueDate?: string;
   columnId?: string;
@@ -56,9 +58,12 @@ export const taskApi = baseApi.injectEndpoints({
       providesTags: ["Task"],
     }),
     listTasksByWorkspace: builder.query<Task[], ListWorkspaceTasksParams>({
-      query: ({ workspaceId, done }) => ({
+      query: ({ workspaceId, done, sprintId }) => ({
         url: `/workspaces/${workspaceId}/tasks`,
-        params: done !== undefined ? { done: String(done) } : undefined,
+        params: {
+          ...(done !== undefined ? { done: String(done) } : {}),
+          ...(sprintId !== undefined ? { sprintId } : {}),
+        },
       }),
       providesTags: ["Task"],
     }),

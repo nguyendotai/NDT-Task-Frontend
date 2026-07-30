@@ -13,13 +13,6 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import {
   columnFormSchema,
@@ -28,7 +21,6 @@ import {
   type ColumnFormValues,
   type WorkspaceColumn,
 } from "@/features/workspace";
-import { STATUS_LABEL } from "@/features/task";
 
 interface ColumnFormDialogProps {
   workspaceId: string;
@@ -57,14 +49,14 @@ export function ColumnFormDialog({
     formState: { errors },
   } = useForm<ColumnFormValues>({
     resolver: zodResolver(columnFormSchema),
-    defaultValues: { name: "", mappedStatus: "NONE" },
+    defaultValues: { name: "", isDoneColumn: false },
   });
 
   useEffect(() => {
     if (!open) return;
     reset({
       name: column?.name ?? "",
-      mappedStatus: column?.mappedStatus ?? "NONE",
+      isDoneColumn: column?.isDoneColumn ?? false,
     });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormError(null);
@@ -73,12 +65,19 @@ export function ColumnFormDialog({
 
   const onSubmit = async (values: ColumnFormValues) => {
     setFormError(null);
-    const mappedStatus = values.mappedStatus === "NONE" ? null : values.mappedStatus;
     try {
       if (isEdit && column) {
-        await updateColumn({ id: column.id, name: values.name, mappedStatus }).unwrap();
+        await updateColumn({
+          id: column.id,
+          name: values.name,
+          isDoneColumn: values.isDoneColumn,
+        }).unwrap();
       } else {
-        await createColumn({ workspaceId, name: values.name, mappedStatus }).unwrap();
+        await createColumn({
+          workspaceId,
+          name: values.name,
+          isDoneColumn: values.isDoneColumn,
+        }).unwrap();
       }
       onOpenChange(false);
     } catch (error) {
@@ -108,31 +107,27 @@ export function ColumnFormDialog({
               ) : null}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="column-status">Maps to status</Label>
+            <div className="flex items-start gap-2.5">
               <Controller
                 control={control}
-                name="mappedStatus"
+                name="isDoneColumn"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="column-status" className="w-full">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NONE">None</SelectItem>
-                      <SelectItem value="TODO">{STATUS_LABEL.TODO}</SelectItem>
-                      <SelectItem value="IN_PROGRESS">
-                        {STATUS_LABEL.IN_PROGRESS}
-                      </SelectItem>
-                      <SelectItem value="DONE">{STATUS_LABEL.DONE}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <input
+                    id="column-is-done"
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={(event) => field.onChange(event.target.checked)}
+                    className="mt-0.5 size-4 shrink-0 rounded-[var(--radius-sm)] border-border accent-primary"
+                  />
                 )}
               />
-              <p className="text-xs text-muted-foreground">
-                Tasks moved into this column will automatically switch to this
-                status. Choose None to leave a task&apos;s status unchanged.
-              </p>
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="column-is-done">Mark as a &quot;Done&quot; column</Label>
+                <p className="text-xs text-muted-foreground">
+                  Tasks in this column count as finished for the done/unfinished
+                  filters (e.g. Dashboard).
+                </p>
+              </div>
             </div>
 
             {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
