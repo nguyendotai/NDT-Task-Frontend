@@ -32,6 +32,19 @@ interface ChangePasswordRequest {
   newPassword: string;
 }
 
+interface ForgotPasswordRequest {
+  email: string;
+}
+
+interface ForgotPasswordResponse {
+  message: string;
+}
+
+interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation<RegisterResponse, RegisterRequest>({
@@ -49,6 +62,12 @@ export const authApi = baseApi.injectEndpoints({
     changePassword: builder.mutation<Record<string, never>, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/change-password", method: "POST", body }),
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (body) => ({ url: "/auth/forgot-password", method: "POST", body }),
+    }),
+    resetPassword: builder.mutation<Record<string, never>, ResetPasswordRequest>({
+      query: (body) => ({ url: "/auth/reset-password", method: "POST", body }),
+    }),
     getMe: builder.query<AuthUser, void>({
       query: () => "/users/me",
     }),
@@ -61,5 +80,7 @@ export const {
   useRefreshMutation,
   useLogoutMutation,
   useChangePasswordMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useLazyGetMeQuery,
 } = authApi;
