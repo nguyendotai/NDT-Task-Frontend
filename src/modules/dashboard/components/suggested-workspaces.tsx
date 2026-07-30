@@ -15,11 +15,11 @@ export function SuggestedWorkspaces() {
       <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
 
       {isLoading ? (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="grid grid-cols-5 gap-3">
           {Array.from({ length: SUGGESTED_LIMIT }).map((_, index) => (
             <div
               key={index}
-              className="h-40 w-64 shrink-0 animate-pulse rounded-2xl border border-border/60 bg-muted/50 sm:w-72"
+              className="h-40 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
             />
           ))}
         </div>
@@ -39,11 +39,9 @@ export function SuggestedWorkspaces() {
           You don&apos;t have any workspaces yet — create your first one.
         </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="grid grid-cols-5 gap-3">
           {suggested.map((workspace) => (
-            <div key={workspace.id} className="w-64 shrink-0 sm:w-72">
-              <WorkspaceCard workspace={workspace} />
-            </div>
+            <WorkspaceCard key={workspace.id} workspace={workspace} />
           ))}
         </div>
       )}
