@@ -7,6 +7,7 @@ export {
   selectAccessToken,
   selectIsBootstrapped,
   clearCredentials,
+  setUser,
 } from "./store/auth.slice";
 export { useLogoutMutation } from "./api/auth.api";
 export type { AuthUser } from "./types/auth.types";

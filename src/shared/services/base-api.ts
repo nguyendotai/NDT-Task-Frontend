@@ -49,6 +49,6 @@ const baseQueryWithEnvelope: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithEnvelope,
-  tagTypes: ["Workspace", "Task"],
+  tagTypes: ["Workspace", "Task", "User"],
   endpoints: () => ({}),
 });
