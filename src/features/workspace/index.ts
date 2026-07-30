@@ -4,6 +4,10 @@ export {
   useGetWorkspaceQuery,
   useGetWorkspaceBoardQuery,
   useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
+  useRestoreWorkspaceMutation,
+  useListArchivedWorkspacesQuery,
   useStarWorkspaceMutation,
   useUnstarWorkspaceMutation,
   useListMembersQuery,
@@ -21,6 +25,7 @@ export type {
   WorkspaceColumn,
   WorkspaceRole,
   WorkspaceType,
+  WorkspaceVisibility,
   WorkspaceMember,
   WorkspaceInvitation,
   InvitationStatus,
@@ -33,6 +38,10 @@ export {
   inviteMemberSchema,
   type InviteMemberFormValues,
 } from "./schemas/invite-member.schema";
+export {
+  updateWorkspaceSchema,
+  type UpdateWorkspaceFormValues,
+} from "./schemas/update-workspace.schema";
 export {
   WORKSPACE_AVATAR_PRESETS,
   getWorkspaceAvatarGradient,
