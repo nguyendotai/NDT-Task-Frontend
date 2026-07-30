@@ -1,6 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import { PlusIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -8,11 +17,14 @@ import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser } from "@/features/auth";
 import { useGetWorkspaceBoardQuery, useListMembersQuery } from "@/features/workspace";
 import {
+  useAddSprintTaskMutation,
   useCompleteSprintMutation,
   useListSprintsQuery,
+  useRemoveSprintTaskMutation,
   useStartSprintMutation,
   type Sprint,
 } from "@/features/sprint";
+import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, type Task } from "@/features/task";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { SprintFormDialog } from "./sprint-form-dialog";
 import { SprintTaskList } from "./sprint-task-list";
@@ -33,11 +45,14 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
   const { data: sprints, isLoading } = useListSprintsQuery(workspaceId);
   const [startSprint] = useStartSprintMutation();
   const [completeSprint] = useCompleteSprintMutation();
+  const [addSprintTask] = useAddSprintTaskMutation();
+  const [removeSprintTask] = useRemoveSprintTaskMutation();
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [editSprint, setEditSprint] = useState<Sprint | null>(null);
-  const [expandedSprintId, setExpandedSprintId] = useState<string | null>(null);
   const [isCreateTaskOpen, setCreateTaskOpen] = useState(false);
+  const [activeDragTask, setActiveDragTask] = useState<Task | null>(null);
 
   const currentMember = useMemo(
     () => members?.find((member) => member.user.id === currentUser?.id),
@@ -72,6 +87,45 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
       window.alert(getApiErrorMessage(error as never));
     }
   };
+
+  function handleDragStart(event: DragStartEvent) {
+    const data = event.active.data.current as { task: Task } | undefined;
+    setActiveDragTask(data?.task ?? null);
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveDragTask(null);
+    if (!over) return;
+
+    const data = active.data.current as
+      | { task: Task; sourceSprintId: string }
+      | undefined;
+    if (!data) return;
+
+    const sourceSprintId = data.sourceSprintId;
+    const targetSprintId = String(over.id);
+    if (sourceSprintId === targetSprintId) return;
+
+    try {
+      // sprint.md #5.6/#5.7: chỉ Add/Remove được khi Sprint đích/nguồn đang
+      // Planned — Backend tự chặn nếu vi phạm (Active/Completed sẽ báo lỗi).
+      if (sourceSprintId !== "backlog") {
+        await removeSprintTask({
+          sprintId: sourceSprintId,
+          taskId: data.task.id,
+        }).unwrap();
+      }
+      if (targetSprintId !== "backlog") {
+        await addSprintTask({
+          sprintId: targetSprintId,
+          taskId: data.task.id,
+        }).unwrap();
+      }
+    } catch (error) {
+      window.alert(getApiErrorMessage(error as never));
+    }
+  }
 
   if (isLoading) {
     return (
@@ -139,7 +193,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
                 sprintId={activeSprint.id}
                 columns={columns}
                 canManage={canManage}
-                removable={false}
+                interactive={false}
               />
             </div>
           </div>
@@ -150,99 +204,119 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-medium text-muted-foreground">Planned Sprints</h3>
-        {plannedSprints.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No planned Sprint yet.</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {plannedSprints.map((sprint) => (
-              <div
-                key={sprint.id}
-                className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <button
-                    type="button"
-                    className="min-w-0 flex-1 text-left"
-                    onClick={() =>
-                      setExpandedSprintId(expandedSprintId === sprint.id ? null : sprint.id)
-                    }
-                  >
-                    <p className="font-medium text-foreground">{sprint.name}</p>
-                    {sprint.goal ? (
-                      <p className="mt-1 text-sm text-muted-foreground">{sprint.goal}</p>
-                    ) : null}
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
-                    </p>
-                  </button>
-                  {canManage ? (
-                    <div className="flex shrink-0 gap-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditSprint(sprint)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={!!activeSprint}
-                        onClick={() => handleStart(sprint.id)}
-                      >
-                        Start
-                      </Button>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <section className="flex flex-col gap-3">
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Planned Sprints
+            {plannedSprints.length > 0 ? (
+              <span className="ml-2 font-normal text-xs">
+                Drag tasks between Sprints and the Product Backlog below.
+              </span>
+            ) : null}
+          </h3>
+          {plannedSprints.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No planned Sprint yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {plannedSprints.map((sprint) => (
+                <div
+                  key={sprint.id}
+                  className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-foreground">{sprint.name}</p>
+                      {sprint.goal ? (
+                        <p className="mt-1 text-sm text-muted-foreground">{sprint.goal}</p>
+                      ) : null}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
+                      </p>
                     </div>
-                  ) : null}
-                </div>
-                {expandedSprintId === sprint.id ? (
+                    {canManage ? (
+                      <div className="flex shrink-0 gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditSprint(sprint)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!!activeSprint}
+                          onClick={() => handleStart(sprint.id)}
+                        >
+                          Start
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
                   <div className="mt-4">
                     <SprintTaskList
                       workspaceId={workspaceId}
                       sprintId={sprint.id}
                       columns={columns}
                       canManage={canManage}
-                      removable
+                      interactive
                     />
                   </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground">Product Backlog</h3>
-          {canManage ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setCreateTaskOpen(true)}
-            >
-              <PlusIcon className="size-3.5" />
-              Add task
-            </Button>
+        <section className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-muted-foreground">Product Backlog</h3>
+            {canManage ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => setCreateTaskOpen(true)}
+              >
+                <PlusIcon className="size-3.5" />
+                Add task
+              </Button>
+            ) : null}
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+            <SprintTaskList
+              workspaceId={workspaceId}
+              sprintId="backlog"
+              columns={columns}
+              canManage={canManage}
+              interactive
+            />
+          </div>
+        </section>
+
+        <DragOverlay>
+          {activeDragTask ? (
+            <div className="flex w-72 flex-col gap-2 rounded-xl border border-border/60 bg-card p-3 shadow-md">
+              <p className="truncate text-sm font-medium text-foreground">
+                {activeDragTask.title}
+              </p>
+              <Badge
+                className={PRIORITY_BADGE_CLASS[activeDragTask.priority]}
+                variant="outline"
+              >
+                {PRIORITY_LABEL[activeDragTask.priority]}
+              </Badge>
+            </div>
           ) : null}
-        </div>
-        <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
-          <SprintTaskList
-            workspaceId={workspaceId}
-            sprintId="backlog"
-            columns={columns}
-            canManage={canManage}
-            removable={false}
-            addToSprintOptions={plannedSprints}
-          />
-        </div>
-      </section>
+        </DragOverlay>
+      </DndContext>
 
       {completedSprints.length > 0 ? (
         <section className="flex flex-col gap-3">
