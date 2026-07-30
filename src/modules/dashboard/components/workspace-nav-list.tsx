@@ -8,15 +8,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { useListMyWorkspacesQuery } from "@/features/workspace";
+import {
+  getWorkspaceAvatarGradient,
+  useListMyWorkspacesQuery,
+  type WorkspaceSummary,
+} from "@/features/workspace";
 
-const RECENT_LIMIT = 5;
-const MORE_LIMIT = 3;
+const RECENT_LIMIT = 4;
+
+function WorkspaceAvatar({ workspace }: { workspace: WorkspaceSummary }) {
+  return (
+    <span
+      className={`flex size-5 shrink-0 items-center justify-center rounded-md bg-gradient-to-br text-xs ${getWorkspaceAvatarGradient(
+        workspace.avatarColor ?? "blue",
+      )}`}
+    >
+      {workspace.avatarEmoji ?? "📁"}
+    </span>
+  );
+}
 
 export function WorkspaceNavList() {
   const { data: workspaces = [] } = useListMyWorkspacesQuery();
   const recent = workspaces.slice(0, RECENT_LIMIT);
-  const more = workspaces.slice(RECENT_LIMIT, RECENT_LIMIT + MORE_LIMIT);
+  const more = workspaces.slice(RECENT_LIMIT);
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -26,7 +41,7 @@ export function WorkspaceNavList() {
       </div>
 
       {recent.length === 0 ? (
-        <p className="px-3 py-1.5 text-xs text-muted-foreground">
+        <p className="px-3 py-1.5 pl-7 text-xs text-muted-foreground">
           No workspaces yet
         </p>
       ) : (
@@ -34,9 +49,10 @@ export function WorkspaceNavList() {
           <Link
             key={workspace.id}
             href={`/workspaces/${workspace.id}`}
-            className="truncate rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex items-center gap-2 truncate rounded-lg py-1.5 pr-3 pl-7 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            {workspace.name}
+            <WorkspaceAvatar workspace={workspace} />
+            <span className="truncate">{workspace.name}</span>
           </Link>
         ))
       )}
@@ -47,10 +63,10 @@ export function WorkspaceNavList() {
             render={
               <button
                 type="button"
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-lg py-1.5 pr-3 pl-7 text-left text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ChevronDownIcon className="size-3.5" />
-                More
+                More workspace
               </button>
             }
           />
@@ -60,19 +76,13 @@ export function WorkspaceNavList() {
                 key={workspace.id}
                 render={<Link href={`/workspaces/${workspace.id}`} />}
               >
-                {workspace.name}
+                <WorkspaceAvatar workspace={workspace} />
+                <span className="truncate">{workspace.name}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       ) : null}
-
-      <Link
-        href="/workspaces"
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-primary hover:underline"
-      >
-        View all
-      </Link>
     </div>
   );
 }

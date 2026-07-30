@@ -7,6 +7,7 @@ import type {
   WorkspaceMember,
   WorkspaceRole,
   WorkspaceSummary,
+  WorkspaceVisibility,
 } from "../types/workspace.types";
 
 interface CreateWorkspaceRequest {
@@ -15,6 +16,13 @@ interface CreateWorkspaceRequest {
   description?: string;
   avatarEmoji?: string;
   avatarColor?: string;
+}
+
+interface UpdateWorkspaceRequest {
+  id: string;
+  name?: string;
+  description?: string;
+  visibility?: WorkspaceVisibility;
 }
 
 interface InviteMemberRequest {
@@ -53,6 +61,26 @@ export const workspaceApi = baseApi.injectEndpoints({
     createWorkspace: builder.mutation<Workspace, CreateWorkspaceRequest>({
       query: (body) => ({ url: "/workspaces", method: "POST", body }),
       invalidatesTags: ["Workspace"],
+    }),
+    updateWorkspace: builder.mutation<Workspace, UpdateWorkspaceRequest>({
+      query: ({ id, ...body }) => ({
+        url: `/workspaces/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Workspace", id }, "Workspace"],
+    }),
+    deleteWorkspace: builder.mutation<Record<string, never>, string>({
+      query: (id) => ({ url: `/workspaces/${id}`, method: "DELETE" }),
+      invalidatesTags: ["Workspace"],
+    }),
+    restoreWorkspace: builder.mutation<Workspace, string>({
+      query: (id) => ({ url: `/workspaces/${id}/restore`, method: "POST" }),
+      invalidatesTags: ["Workspace"],
+    }),
+    listArchivedWorkspaces: builder.query<Workspace[], void>({
+      query: () => "/workspaces/archived",
+      providesTags: ["Workspace"],
     }),
     starWorkspace: builder.mutation<Record<string, never>, string>({
       query: (id) => ({ url: `/workspaces/${id}/star`, method: "POST" }),
@@ -111,6 +139,10 @@ export const {
   useGetWorkspaceQuery,
   useGetWorkspaceBoardQuery,
   useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
+  useRestoreWorkspaceMutation,
+  useListArchivedWorkspacesQuery,
   useStarWorkspaceMutation,
   useUnstarWorkspaceMutation,
   useListMembersQuery,

@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { SettingsIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useGetWorkspaceQuery } from "@/features/workspace";
 import { BoardView } from "@/modules/board/components/board-view";
@@ -55,17 +58,29 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-heading text-2xl font-bold">{workspace.name}</h1>
-          <Badge variant="outline">{workspace.type}</Badge>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-heading text-2xl font-bold">{workspace.name}</h1>
+            <Badge variant="outline">{workspace.type}</Badge>
+          </div>
+          {workspace.description ? (
+            <p className="mt-1 text-sm text-muted-foreground">{workspace.description}</p>
+          ) : null}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {workspace.membersCount} member{workspace.membersCount === 1 ? "" : "s"}
+          </p>
         </div>
-        {workspace.description ? (
-          <p className="mt-1 text-sm text-muted-foreground">{workspace.description}</p>
-        ) : null}
-        <p className="mt-2 text-xs text-muted-foreground">
-          {workspace.membersCount} member{workspace.membersCount === 1 ? "" : "s"}
-        </p>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          render={<Link href={`/workspaces/${workspaceId}/settings`} />}
+        >
+          <SettingsIcon className="size-3.5" />
+          Settings
+        </Button>
       </div>
 
       <Tabs defaultValue="board">

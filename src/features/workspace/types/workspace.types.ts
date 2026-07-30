@@ -1,5 +1,6 @@
 export type WorkspaceType = "KANBAN" | "SCRUM";
 export type WorkspaceRole = "OWNER" | "ADMIN" | "MEMBER";
+export type WorkspaceVisibility = "PUBLIC" | "PRIVATE";
 
 export interface Workspace {
   id: string;
@@ -10,6 +11,7 @@ export interface Workspace {
   shortCode: string;
   avatarEmoji: string;
   avatarColor: string;
+  visibility: WorkspaceVisibility;
   createdAt: string;
   updatedAt: string;
 }

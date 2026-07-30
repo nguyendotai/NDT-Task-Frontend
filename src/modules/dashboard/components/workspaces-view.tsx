@@ -1,10 +1,48 @@
 "use client";
 
 import Link from "next/link";
-import { PlusIcon } from "lucide-react";
+import { ArchiveRestoreIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { useListMyWorkspacesQuery } from "@/features/workspace";
+import {
+  useListArchivedWorkspacesQuery,
+  useListMyWorkspacesQuery,
+  useRestoreWorkspaceMutation,
+} from "@/features/workspace";
 import { WorkspaceCard } from "./workspace-card";
+
+function ArchivedWorkspaces() {
+  const { data: archived } = useListArchivedWorkspacesQuery();
+  const [restoreWorkspace, { isLoading: isRestoring }] = useRestoreWorkspaceMutation();
+
+  if (!archived || archived.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+        Archived workspaces
+      </p>
+      {archived.map((workspace) => (
+        <div
+          key={workspace.id}
+          className="flex items-center gap-3 rounded-xl border border-dashed border-border/60 px-4 py-3"
+        >
+          <p className="min-w-0 flex-1 truncate text-sm text-foreground">{workspace.name}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            disabled={isRestoring}
+            onClick={() => restoreWorkspace(workspace.id)}
+          >
+            <ArchiveRestoreIcon className="size-3.5" />
+            Restore
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function WorkspacesView() {
   const {
@@ -58,6 +96,8 @@ export function WorkspacesView() {
           ))}
         </div>
       )}
+
+      <ArchivedWorkspaces />
     </div>
   );
 }
