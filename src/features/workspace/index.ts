@@ -16,6 +16,10 @@ export {
   useRemoveMemberMutation,
   useListInvitationsQuery,
   useRevokeInvitationMutation,
+  useCreateColumnMutation,
+  useRenameColumnMutation,
+  useDeleteColumnMutation,
+  useReorderColumnsMutation,
 } from "./api/workspace.api";
 export type {
   Workspace,

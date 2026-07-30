@@ -2,6 +2,7 @@ import { baseApi } from "@/shared/services/base-api";
 import type {
   Workspace,
   WorkspaceBoard,
+  WorkspaceColumn,
   WorkspaceDetail,
   WorkspaceInvitation,
   WorkspaceMember,
@@ -42,6 +43,21 @@ interface RemoveMemberRequest {
   memberId: string;
 }
 
+interface CreateColumnRequest {
+  workspaceId: string;
+  name: string;
+}
+
+interface RenameColumnRequest {
+  id: string;
+  name: string;
+}
+
+interface ReorderColumnsRequest {
+  workspaceId: string;
+  orderedColumnIds: string[];
+}
+
 export const workspaceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listMyWorkspaces: builder.query<WorkspaceSummary[], { starred?: boolean } | void>({
@@ -57,6 +73,7 @@ export const workspaceApi = baseApi.injectEndpoints({
     }),
     getWorkspaceBoard: builder.query<WorkspaceBoard, string>({
       query: (id) => `/workspaces/${id}/board`,
+      providesTags: ["Workspace"],
     }),
     createWorkspace: builder.mutation<Workspace, CreateWorkspaceRequest>({
       query: (body) => ({ url: "/workspaces", method: "POST", body }),
@@ -131,6 +148,34 @@ export const workspaceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Workspace"],
     }),
+    createColumn: builder.mutation<WorkspaceColumn, CreateColumnRequest>({
+      query: ({ workspaceId, name }) => ({
+        url: `/workspaces/${workspaceId}/columns`,
+        method: "POST",
+        body: { name },
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
+    renameColumn: builder.mutation<WorkspaceColumn, RenameColumnRequest>({
+      query: ({ id, name }) => ({
+        url: `/columns/${id}`,
+        method: "PATCH",
+        body: { name },
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
+    deleteColumn: builder.mutation<Record<string, never>, string>({
+      query: (id) => ({ url: `/columns/${id}`, method: "DELETE" }),
+      invalidatesTags: ["Workspace"],
+    }),
+    reorderColumns: builder.mutation<WorkspaceColumn[], ReorderColumnsRequest>({
+      query: ({ workspaceId, orderedColumnIds }) => ({
+        url: `/workspaces/${workspaceId}/columns/reorder`,
+        method: "PATCH",
+        body: { orderedColumnIds },
+      }),
+      invalidatesTags: ["Workspace"],
+    }),
   }),
 });
 
@@ -151,4 +196,8 @@ export const {
   useRemoveMemberMutation,
   useListInvitationsQuery,
   useRevokeInvitationMutation,
+  useCreateColumnMutation,
+  useRenameColumnMutation,
+  useDeleteColumnMutation,
+  useReorderColumnsMutation,
 } = workspaceApi;
