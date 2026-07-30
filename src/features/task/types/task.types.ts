@@ -17,8 +17,23 @@ export interface Task {
   startDate?: string | null;
   dueDate?: string | null;
   assigneeId?: string | null;
+  // Bổ sung theo yêu cầu (không thuộc field chuẩn task.md) — hiển thị ở modal
+  // chi tiết Task.
+  storyPoints?: number | null;
+  labels: string[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;
   isStarred: boolean;
+}
+
+export interface TaskActivityEntry {
+  id: string;
+  workspaceId: string;
+  actorId: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
 }

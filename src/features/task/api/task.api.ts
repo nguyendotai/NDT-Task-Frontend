@@ -1,5 +1,10 @@
 import { baseApi } from "@/shared/services/base-api";
-import type { Task, TaskListScope, TaskPriority } from "../types/task.types";
+import type {
+  Task,
+  TaskActivityEntry,
+  TaskListScope,
+  TaskPriority,
+} from "../types/task.types";
 
 interface ListMyTasksParams {
   done?: boolean;
@@ -31,6 +36,8 @@ interface CreateTaskRequest {
   priority?: TaskPriority;
   startDate?: string;
   dueDate?: string;
+  storyPoints?: number;
+  labels?: string[];
 }
 
 interface UpdateTaskRequest {
@@ -46,6 +53,8 @@ interface UpdateTaskRequest {
   columnId?: string;
   order?: number;
   assigneeId?: string;
+  storyPoints?: number;
+  labels?: string[];
 }
 
 export const taskApi = baseApi.injectEndpoints({
@@ -74,6 +83,10 @@ export const taskApi = baseApi.injectEndpoints({
     getTask: builder.query<Task, string>({
       query: (id) => `/tasks/${id}`,
       providesTags: (_result, _error, id) => [{ type: "Task", id }],
+    }),
+    listTaskActivity: builder.query<TaskActivityEntry[], string>({
+      query: (id) => `/tasks/${id}/activity`,
+      providesTags: (_result, _error, id) => [{ type: "Task", id: `${id}-activity` }],
     }),
     createTask: builder.mutation<Task, CreateTaskRequest>({
       query: (body) => ({ url: "/tasks", method: "POST", body }),
@@ -131,6 +144,7 @@ export const {
   useListTasksByWorkspaceQuery,
   useListArchivedTasksQuery,
   useGetTaskQuery,
+  useListTaskActivityQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,

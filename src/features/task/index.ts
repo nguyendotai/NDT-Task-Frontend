@@ -3,6 +3,7 @@ export {
   useListTasksByWorkspaceQuery,
   useListArchivedTasksQuery,
   useGetTaskQuery,
+  useListTaskActivityQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation,
@@ -10,7 +11,12 @@ export {
   useStarTaskMutation,
   useUnstarTaskMutation,
 } from "./api/task.api";
-export type { Task, TaskPriority, TaskListScope } from "./types/task.types";
+export type {
+  Task,
+  TaskActivityEntry,
+  TaskPriority,
+  TaskListScope,
+} from "./types/task.types";
 export {
   PRIORITY_LABEL,
   PRIORITY_BADGE_CLASS,
