@@ -1,5 +1,6 @@
 import { baseApi } from "@/shared/services/base-api";
 import type {
+  ColumnMappedStatus,
   Workspace,
   WorkspaceBoard,
   WorkspaceColumn,
@@ -46,11 +47,13 @@ interface RemoveMemberRequest {
 interface CreateColumnRequest {
   workspaceId: string;
   name: string;
+  mappedStatus?: ColumnMappedStatus | null;
 }
 
-interface RenameColumnRequest {
+interface UpdateColumnRequest {
   id: string;
-  name: string;
+  name?: string;
+  mappedStatus?: ColumnMappedStatus | null;
 }
 
 interface ReorderColumnsRequest {
@@ -149,18 +152,18 @@ export const workspaceApi = baseApi.injectEndpoints({
       invalidatesTags: ["Workspace"],
     }),
     createColumn: builder.mutation<WorkspaceColumn, CreateColumnRequest>({
-      query: ({ workspaceId, name }) => ({
+      query: ({ workspaceId, ...body }) => ({
         url: `/workspaces/${workspaceId}/columns`,
         method: "POST",
-        body: { name },
+        body,
       }),
       invalidatesTags: ["Workspace"],
     }),
-    renameColumn: builder.mutation<WorkspaceColumn, RenameColumnRequest>({
-      query: ({ id, name }) => ({
+    updateColumn: builder.mutation<WorkspaceColumn, UpdateColumnRequest>({
+      query: ({ id, ...body }) => ({
         url: `/columns/${id}`,
         method: "PATCH",
-        body: { name },
+        body,
       }),
       invalidatesTags: ["Workspace"],
     }),
@@ -197,7 +200,7 @@ export const {
   useListInvitationsQuery,
   useRevokeInvitationMutation,
   useCreateColumnMutation,
-  useRenameColumnMutation,
+  useUpdateColumnMutation,
   useDeleteColumnMutation,
   useReorderColumnsMutation,
 } = workspaceApi;

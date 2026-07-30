@@ -6,7 +6,6 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,31 +13,30 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
-import {
-  useDeleteColumnMutation,
-  useRenameColumnMutation,
-  type WorkspaceColumn,
-} from "@/features/workspace";
+import { useDeleteColumnMutation, type WorkspaceColumn } from "@/features/workspace";
 import type { Task } from "@/features/task";
 import { BoardTaskCard } from "./board-task-card";
+import { ColumnFormDialog } from "./column-form-dialog";
 
 const COLUMN_DOT_CLASS: Record<string, string> = {
-  "to do": "bg-blue-400",
-  "in progress": "bg-amber-500",
-  done: "bg-green-500",
+  TODO: "bg-blue-400",
+  IN_PROGRESS: "bg-amber-500",
+  DONE: "bg-green-500",
 };
 
-function getColumnDotClass(name: string) {
-  return COLUMN_DOT_CLASS[name.trim().toLowerCase()] ?? "bg-primary";
+function getColumnDotClass(mappedStatus: WorkspaceColumn["mappedStatus"]) {
+  return mappedStatus ? (COLUMN_DOT_CLASS[mappedStatus] ?? "bg-primary") : "bg-muted-foreground/40";
 }
 
 export function BoardColumn({
+  workspaceId,
   column,
   tasks,
   assigneeNameById,
   onAddTask,
   onTaskClick,
 }: {
+  workspaceId: string;
   column: WorkspaceColumn;
   tasks: Task[];
   assigneeNameById: Map<string, string>;
@@ -55,29 +53,10 @@ export function BoardColumn({
     isDragging,
   } = useSortable({ id: column.id, data: { type: "column", column } });
 
-  const [isRenaming, setRenaming] = useState(false);
-  const [name, setName] = useState(column.name);
-  const [error, setError] = useState<string | null>(null);
-  const [renameColumn, { isLoading: isSaving }] = useRenameColumnMutation();
+  const [isEditing, setEditing] = useState(false);
   const [deleteColumn] = useDeleteColumnMutation();
 
   const taskIds = tasks.map((task) => task.id);
-
-  const submitRename = async () => {
-    const trimmed = name.trim();
-    if (!trimmed || trimmed === column.name) {
-      setRenaming(false);
-      setName(column.name);
-      return;
-    }
-    setError(null);
-    try {
-      await renameColumn({ id: column.id, name: trimmed }).unwrap();
-      setRenaming(false);
-    } catch (err) {
-      setError(getApiErrorMessage(err as never));
-    }
-  };
 
   const handleDelete = async () => {
     if (!window.confirm(`Delete column "${column.name}"?`)) return;
@@ -103,27 +82,10 @@ export function BoardColumn({
           {...listeners}
           {...attributes}
         >
-          <span className={`size-2 shrink-0 rounded-full ${getColumnDotClass(column.name)}`} />
-          {isRenaming ? (
-            <Input
-              autoFocus
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              onBlur={submitRename}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") submitRename();
-                if (event.key === "Escape") {
-                  setName(column.name);
-                  setRenaming(false);
-                }
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              disabled={isSaving}
-              className="h-7 text-sm"
-            />
-          ) : (
-            <p className="truncate text-sm font-semibold text-foreground">{column.name}</p>
-          )}
+          <span
+            className={`size-2 shrink-0 rounded-full ${getColumnDotClass(column.mappedStatus)}`}
+          />
+          <p className="truncate text-sm font-semibold text-foreground">{column.name}</p>
         </div>
         <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
           {tasks.length}
@@ -137,14 +99,13 @@ export function BoardColumn({
             }
           />
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setRenaming(true)}>Rename</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setEditing(true)}>Edit</DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={handleDelete}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {error ? <p className="px-1 text-xs text-destructive">{error}</p> : null}
 
       <div
         ref={setDroppableRef}
@@ -178,6 +139,13 @@ export function BoardColumn({
         <PlusIcon className="size-3.5" />
         Add task
       </Button>
+
+      <ColumnFormDialog
+        workspaceId={workspaceId}
+        open={isEditing}
+        onOpenChange={setEditing}
+        column={column}
+      />
     </div>
   );
 }
