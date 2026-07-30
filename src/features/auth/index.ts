@@ -9,5 +9,9 @@ export {
   clearCredentials,
   setUser,
 } from "./store/auth.slice";
-export { useLogoutMutation } from "./api/auth.api";
+export { useLogoutMutation, useChangePasswordMutation } from "./api/auth.api";
 export type { AuthUser } from "./types/auth.types";
+export {
+  changePasswordSchema,
+  type ChangePasswordFormValues,
+} from "./schemas/change-password.schema";

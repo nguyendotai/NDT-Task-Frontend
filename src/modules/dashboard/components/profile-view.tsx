@@ -17,6 +17,7 @@ import {
   updateProfileSchema,
   type UpdateProfileFormValues,
 } from "@/features/user";
+import { ChangePasswordForm } from "./change-password-form";
 
 export function ProfileView() {
   const dispatch = useAppDispatch();
@@ -157,6 +158,8 @@ export function ProfileView() {
           </div>
         </form>
       </div>
+
+      <ChangePasswordForm />
     </div>
   );
 }
