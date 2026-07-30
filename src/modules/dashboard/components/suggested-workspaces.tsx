@@ -12,14 +12,14 @@ export function SuggestedWorkspaces() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-lg font-bold">Suggested workspaces</h2>
+      <h2 className="font-heading text-lg font-bold">Recommend workspaces</h2>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {Array.from({ length: SUGGESTED_LIMIT }).map((_, index) => (
             <div
               key={index}
-              className="h-40 animate-pulse rounded-2xl border border-border/60 bg-muted/50"
+              className="h-40 w-64 shrink-0 animate-pulse rounded-2xl border border-border/60 bg-muted/50 sm:w-72"
             />
           ))}
         </div>
@@ -39,9 +39,11 @@ export function SuggestedWorkspaces() {
           You don&apos;t have any workspaces yet — create your first one.
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {suggested.map((workspace) => (
-            <WorkspaceCard key={workspace.id} workspace={workspace} />
+            <div key={workspace.id} className="w-64 shrink-0 sm:w-72">
+              <WorkspaceCard workspace={workspace} />
+            </div>
           ))}
         </div>
       )}
