@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, FolderKanbanIcon, UsersIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser } from "@/features/auth";
 import { useGetWorkspaceQuery, useListMembersQuery } from "@/features/workspace";
@@ -65,20 +66,32 @@ export function SettingsView({ workspaceId }: { workspaceId: string }) {
         <p className="mt-1 text-sm text-muted-foreground">{workspace.name}</p>
       </div>
 
-      {isOwner ? (
-        <WorkspaceSettingsView workspace={workspace} />
-      ) : (
-        <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
-          Only the Owner can edit Workspace settings.
-        </p>
-      )}
+      <Tabs defaultValue="workspace" orientation="vertical" className="items-start">
+        <TabsList variant="line" className="w-48 shrink-0 items-stretch">
+          <TabsTrigger value="workspace" className="justify-start gap-2 px-3 py-2">
+            <FolderKanbanIcon className="size-4" />
+            Workspace
+          </TabsTrigger>
+          <TabsTrigger value="member" className="justify-start gap-2 px-3 py-2">
+            <UsersIcon className="size-4" />
+            Member
+          </TabsTrigger>
+        </TabsList>
 
-      <div>
-        <h2 className="mb-3 font-heading text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-          Member
-        </h2>
-        <MemberView workspaceId={workspaceId} />
-      </div>
+        <TabsContent value="workspace" className="min-w-0 flex-1">
+          {isOwner ? (
+            <WorkspaceSettingsView workspace={workspace} />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-border/60 p-6 text-sm text-muted-foreground">
+              Only the Owner can edit Workspace settings.
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="member" className="min-w-0 flex-1">
+          <MemberView workspaceId={workspaceId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
