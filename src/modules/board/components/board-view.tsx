@@ -150,6 +150,7 @@ export function BoardView({ workspaceId }: { workspaceId: string }) {
             {columns.map((column) => (
               <BoardColumn
                 key={column.id}
+                workspaceId={workspaceId}
                 column={column}
                 tasks={tasksByColumn.get(column.id) ?? []}
                 assigneeNameById={assigneeNameById}

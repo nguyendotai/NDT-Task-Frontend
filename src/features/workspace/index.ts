@@ -17,7 +17,7 @@ export {
   useListInvitationsQuery,
   useRevokeInvitationMutation,
   useCreateColumnMutation,
-  useRenameColumnMutation,
+  useUpdateColumnMutation,
   useDeleteColumnMutation,
   useReorderColumnsMutation,
 } from "./api/workspace.api";
@@ -27,6 +27,7 @@ export type {
   WorkspaceDetail,
   WorkspaceBoard,
   WorkspaceColumn,
+  ColumnMappedStatus,
   WorkspaceRole,
   WorkspaceType,
   WorkspaceVisibility,
@@ -46,6 +47,10 @@ export {
   updateWorkspaceSchema,
   type UpdateWorkspaceFormValues,
 } from "./schemas/update-workspace.schema";
+export {
+  columnFormSchema,
+  type ColumnFormValues,
+} from "./schemas/column-form.schema";
 export {
   WORKSPACE_AVATAR_PRESETS,
   getWorkspaceAvatarGradient,
