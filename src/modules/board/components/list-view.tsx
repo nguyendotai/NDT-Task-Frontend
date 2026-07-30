@@ -24,9 +24,9 @@ import {
   useListTasksByWorkspaceQuery,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABEL,
-  type Task,
 } from "@/features/task";
 import { TaskFormDialog } from "./task-form-dialog";
+import { TaskDetailModal } from "./task-detail-modal";
 
 export function ListView({ workspaceId }: { workspaceId: string }) {
   const { data: board } = useGetWorkspaceBoardQuery(workspaceId);
@@ -35,7 +35,7 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
   const [deleteTask] = useDeleteTaskMutation();
 
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const columnNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -88,7 +88,7 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
             </TableHeader>
             <TableBody>
               {tasks.map((task) => (
-                <TableRow key={task.id} className="cursor-pointer" onClick={() => setEditTask(task)}>
+                <TableRow key={task.id} className="cursor-pointer" onClick={() => setSelectedTaskId(task.id)}>
                   <TableCell className="max-w-64 truncate font-medium text-foreground">
                     {task.title}
                   </TableCell>
@@ -119,7 +119,9 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
                         }
                       />
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setEditTask(task)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setSelectedTaskId(task.id)}>
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => deleteTask(task.id)}
@@ -144,12 +146,11 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
             open={isCreateOpen}
             onOpenChange={setCreateOpen}
           />
-          <TaskFormDialog
+          <TaskDetailModal
             workspaceId={workspaceId}
+            taskId={selectedTaskId}
             columns={board.columns}
-            open={editTask !== null}
-            onOpenChange={(open) => !open && setEditTask(null)}
-            task={editTask ?? undefined}
+            onOpenChange={(open) => !open && setSelectedTaskId(null)}
           />
         </>
       ) : null}
