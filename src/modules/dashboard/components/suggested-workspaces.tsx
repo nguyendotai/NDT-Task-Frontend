@@ -22,6 +22,7 @@ export function SuggestedWorkspaces() {
           variant="ghost"
           size="sm"
           className="gap-1"
+          nativeButton={false}
           render={<Link href="/workspaces" />}
         >
           View all

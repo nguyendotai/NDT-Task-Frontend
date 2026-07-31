@@ -102,6 +102,7 @@ export function Pricing() {
             </CardContent>
             <CardFooter>
               <Button
+                nativeButton={false}
                 render={<Link href={plan.href} />}
                 className={cn(
                   "w-full",
