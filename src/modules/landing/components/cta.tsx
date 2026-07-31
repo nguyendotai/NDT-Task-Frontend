@@ -23,6 +23,7 @@ export function Cta() {
         <div className="mt-8 flex justify-center">
           <Button
             size="lg"
+            nativeButton={false}
             render={<Link href="/register" />}
             className="h-11 gap-2 bg-gradient-to-r from-blue-500 to-violet-500 px-6 text-white hover:opacity-90"
           >

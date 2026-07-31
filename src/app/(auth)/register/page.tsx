@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "Đăng ký — NDT Task",
 };
 
-export default function RegisterPage() {
-  return <RegisterForm />;
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>;
+}) {
+  const { redirect } = await searchParams;
+  return <RegisterForm redirectTo={redirect} />;
 }

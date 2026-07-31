@@ -113,6 +113,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
           variant="outline"
           size="sm"
           className="gap-1.5 self-start sm:self-center"
+          nativeButton={false}
           render={<Link href={`/workspaces/${workspaceId}/settings`} />}
         >
           <SettingsIcon className="size-3.5" />
