@@ -5,6 +5,7 @@ import type {
   WorkspaceColumn,
   WorkspaceDetail,
   WorkspaceInvitation,
+  WorkspaceInvitationAcceptResult,
   WorkspaceMember,
   WorkspaceRole,
   WorkspaceSummary,
@@ -150,6 +151,13 @@ export const workspaceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Workspace"],
     }),
+    acceptInvitation: builder.mutation<WorkspaceInvitationAcceptResult, string>({
+      query: (token) => ({ url: `/workspaces/invitations/${token}/accept`, method: "POST" }),
+      invalidatesTags: ["Workspace"],
+    }),
+    rejectInvitation: builder.mutation<Record<string, never>, string>({
+      query: (token) => ({ url: `/workspaces/invitations/${token}/reject`, method: "POST" }),
+    }),
     createColumn: builder.mutation<WorkspaceColumn, CreateColumnRequest>({
       query: ({ workspaceId, ...body }) => ({
         url: `/workspaces/${workspaceId}/columns`,
@@ -198,6 +206,8 @@ export const {
   useRemoveMemberMutation,
   useListInvitationsQuery,
   useRevokeInvitationMutation,
+  useAcceptInvitationMutation,
+  useRejectInvitationMutation,
   useCreateColumnMutation,
   useUpdateColumnMutation,
   useDeleteColumnMutation,
