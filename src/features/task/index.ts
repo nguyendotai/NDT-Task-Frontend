@@ -10,12 +10,16 @@ export {
   useRestoreTaskMutation,
   useStarTaskMutation,
   useUnstarTaskMutation,
+  useListWatchersQuery,
+  useAddWatcherMutation,
+  useRemoveWatcherMutation,
 } from "./api/task.api";
 export type {
   Task,
   TaskActivityEntry,
   TaskPriority,
   TaskListScope,
+  TaskWatcher,
 } from "./types/task.types";
 export {
   PRIORITY_LABEL,

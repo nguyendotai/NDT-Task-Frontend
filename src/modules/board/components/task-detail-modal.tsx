@@ -24,6 +24,9 @@ import {
 import { useListMembersQuery, type WorkspaceColumn } from "@/features/workspace";
 import { TaskAttachmentsPanel } from "./task-attachments-panel";
 import { TaskActivityPanel } from "./task-activity-panel";
+import { TaskChecklistPanel } from "./task-checklist-panel";
+import { TaskLabelsPanel } from "./task-labels-panel";
+import { TaskWatchersPanel } from "./task-watchers-panel";
 import { TaskDetailsSidebar, type TaskDetailsPatch } from "./task-details-sidebar";
 
 interface TaskDetailModalProps {
@@ -148,18 +151,28 @@ export function TaskDetailModal({
               />
             </div>
 
+            <TaskChecklistPanel taskId={task.id} />
+
             <TaskAttachmentsPanel taskId={task.id} />
 
-            <TaskActivityPanel taskId={task.id} memberNameById={memberNameById} />
+            <TaskActivityPanel
+              taskId={task.id}
+              members={members}
+              memberNameById={memberNameById}
+            />
           </div>
 
-          <TaskDetailsSidebar
-            task={task}
-            columns={columns}
-            members={members}
-            memberNameById={memberNameById}
-            onChange={handlePatch}
-          />
+          <div className="flex min-w-0 flex-col gap-4">
+            <TaskDetailsSidebar
+              task={task}
+              columns={columns}
+              members={members}
+              memberNameById={memberNameById}
+              onChange={handlePatch}
+            />
+            <TaskLabelsPanel taskId={task.id} />
+            <TaskWatchersPanel taskId={task.id} members={members} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>

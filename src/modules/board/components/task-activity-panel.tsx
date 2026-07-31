@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
@@ -16,6 +16,7 @@ import {
   useUpdateCommentMutation,
 } from "@/features/comment";
 import { useListTaskActivityQuery } from "@/features/task";
+import type { WorkspaceMember } from "@/features/workspace";
 
 function formatDateTime(value: string): string {
   return new Date(value).toLocaleString(undefined, {
@@ -43,11 +44,16 @@ function humanizeAction(action: string): string {
   return ACTION_LABELS[action] ?? action;
 }
 
+// comment.md — @mention: cụm không khoảng trắng ngay sau "@" (chưa chọn xong).
+const MENTION_TRIGGER_PATTERN = /(?:^|\s)@([^\s@]*)$/;
+
 export function TaskActivityPanel({
   taskId,
+  members,
   memberNameById,
 }: {
   taskId: string;
+  members: WorkspaceMember[];
   memberNameById: Map<string, string>;
 }) {
   const currentUser = useAppSelector(selectCurrentUser);
@@ -62,12 +68,51 @@ export function TaskActivityPanel({
   const [draft, setDraft] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const mentionCandidates =
+    mentionQuery === null
+      ? []
+      : members
+          .filter((member) =>
+            member.user.name.toLowerCase().includes(mentionQuery.toLowerCase()),
+          )
+          .slice(0, 5);
+
+  const handleDraftChange = (value: string, caret: number) => {
+    setDraft(value);
+    const match = value.slice(0, caret).match(MENTION_TRIGGER_PATTERN);
+    setMentionQuery(match ? match[1] : null);
+  };
+
+  const handlePickMention = (name: string) => {
+    const textarea = textareaRef.current;
+    const caret = textarea?.selectionStart ?? draft.length;
+    const uptoCaret = draft.slice(0, caret);
+    const match = uptoCaret.match(MENTION_TRIGGER_PATTERN);
+    if (!match) return;
+    const atIndex = uptoCaret.lastIndexOf("@");
+    const next = `${draft.slice(0, atIndex)}@${name} ${draft.slice(caret)}`;
+    setDraft(next);
+    setMentionQuery(null);
+    textarea?.focus();
+  };
 
   const handleSubmit = async () => {
     if (!draft.trim()) return;
+    // comment.md: mentions gửi kèm userId của Member được @nhắc trong nội dung.
+    const mentions = members
+      .filter((member) => draft.includes(`@${member.user.name}`))
+      .map((member) => member.user.id);
     try {
-      await createComment({ taskId, content: draft.trim() }).unwrap();
+      await createComment({
+        taskId,
+        content: draft.trim(),
+        mentions: mentions.length > 0 ? mentions : undefined,
+      }).unwrap();
       setDraft("");
+      setMentionQuery(null);
     } catch (error) {
       window.alert(getApiErrorMessage(error as never));
     }
@@ -116,12 +161,15 @@ export function TaskActivityPanel({
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
               {getInitials(currentUser?.name ?? "?")}
             </span>
-            <div className="flex flex-1 flex-col gap-2">
+            <div className="relative flex flex-1 flex-col gap-2">
               <Textarea
+                ref={textareaRef}
                 placeholder="Add a comment... (@ to mention)"
                 rows={2}
                 value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) =>
+                  handleDraftChange(event.target.value, event.target.selectionStart ?? event.target.value.length)
+                }
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
                     event.preventDefault();
@@ -129,6 +177,20 @@ export function TaskActivityPanel({
                   }
                 }}
               />
+              {mentionQuery !== null && mentionCandidates.length > 0 ? (
+                <div className="absolute top-full left-0 z-10 mt-1 w-56 rounded-lg border border-border/60 bg-popover p-1 shadow-md">
+                  {mentionCandidates.map((member) => (
+                    <button
+                      key={member.user.id}
+                      type="button"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
+                      onClick={() => handlePickMention(member.user.name)}
+                    >
+                      {member.user.name}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               {draft ? (
                 <Button
                   type="button"

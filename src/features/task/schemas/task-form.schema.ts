@@ -8,7 +8,6 @@ export const taskFormSchema = z
     priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
     startDate: z.string().optional().or(z.literal("")),
     dueDate: z.string().optional().or(z.literal("")),
-    assigneeId: z.string().optional().or(z.literal("")),
   })
   .refine(
     (values) =>

@@ -4,6 +4,7 @@ import type {
   TaskActivityEntry,
   TaskListScope,
   TaskPriority,
+  TaskWatcher,
 } from "../types/task.types";
 
 interface ListMyTasksParams {
@@ -37,7 +38,6 @@ interface CreateTaskRequest {
   startDate?: string;
   dueDate?: string;
   storyPoints?: number;
-  labels?: string[];
 }
 
 interface UpdateTaskRequest {
@@ -52,9 +52,18 @@ interface UpdateTaskRequest {
   dueDate?: string;
   columnId?: string;
   order?: number;
-  assigneeId?: string;
+  assigneeIds?: string[];
   storyPoints?: number;
-  labels?: string[];
+}
+
+interface AddWatcherRequest {
+  taskId: string;
+  userId?: string;
+}
+
+interface RemoveWatcherRequest {
+  taskId: string;
+  userId: string;
 }
 
 export const taskApi = baseApi.injectEndpoints({
@@ -136,6 +145,31 @@ export const taskApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/tasks/${id}/star`, method: "DELETE" }),
       invalidatesTags: ["Task"],
     }),
+    listWatchers: builder.query<TaskWatcher[], string>({
+      query: (taskId) => `/tasks/${taskId}/watchers`,
+      providesTags: (_result, _error, taskId) => [
+        { type: "Watcher", id: taskId },
+      ],
+    }),
+    addWatcher: builder.mutation<Record<string, never>, AddWatcherRequest>({
+      query: ({ taskId, userId }) => ({
+        url: `/tasks/${taskId}/watchers`,
+        method: "POST",
+        body: userId ? { userId } : {},
+      }),
+      invalidatesTags: (_result, _error, { taskId }) => [
+        { type: "Watcher", id: taskId },
+      ],
+    }),
+    removeWatcher: builder.mutation<Record<string, never>, RemoveWatcherRequest>({
+      query: ({ taskId, userId }) => ({
+        url: `/tasks/${taskId}/watchers/${userId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, { taskId }) => [
+        { type: "Watcher", id: taskId },
+      ],
+    }),
   }),
 });
 
@@ -151,4 +185,7 @@ export const {
   useRestoreTaskMutation,
   useStarTaskMutation,
   useUnstarTaskMutation,
+  useListWatchersQuery,
+  useAddWatcherMutation,
+  useRemoveWatcherMutation,
 } = taskApi;
