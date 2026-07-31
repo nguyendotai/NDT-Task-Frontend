@@ -76,6 +76,8 @@ export interface SearchParams {
   priority?: "LOW" | "MEDIUM" | "HIGH";
   status?: string;
   assigneeId?: string;
+  reporterId?: string;
+  done?: boolean;
   label?: string;
   sprintId?: string;
   columnId?: string;
@@ -86,3 +88,19 @@ export interface SearchParams {
   limit?: number;
   offset?: number;
 }
+
+export interface LabelFilterOption {
+  name: string;
+  color: string;
+}
+
+// Tập filter chỉ có ý nghĩa với type=task (search.md #4.3), dùng chung giữa
+// SearchBox (dropdown) và trang Advanced Search.
+export interface SearchTaskFilters {
+  assigneeId?: string;
+  reporterId?: string;
+  done?: boolean;
+  label?: string;
+}
+
+export const EMPTY_TASK_FILTERS: SearchTaskFilters = {};

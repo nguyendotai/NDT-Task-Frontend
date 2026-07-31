@@ -22,6 +22,7 @@ import {
   useUpdateTaskMutation,
 } from "@/features/task";
 import { useListMembersQuery, type WorkspaceColumn } from "@/features/workspace";
+import { recordRecentlyViewedTask } from "@/features/search";
 import { TaskAttachmentsPanel } from "./task-attachments-panel";
 import { TaskActivityPanel } from "./task-activity-panel";
 import { TaskChecklistPanel } from "./task-checklist-panel";
@@ -57,6 +58,10 @@ export function TaskDetailModal({
     setTitleDraft(task?.title ?? "");
     setDescriptionDraft(task?.description ?? "");
   }, [task]);
+
+  useEffect(() => {
+    if (task) recordRecentlyViewedTask(workspaceId, { id: task.id, title: task.title });
+  }, [task, workspaceId]);
 
   const memberNameById = useMemo(() => {
     const map = new Map<string, string>();

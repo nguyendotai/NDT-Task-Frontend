@@ -2,19 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CheckSquareIcon,
-  Columns3Icon,
-  MessageSquareIcon,
-  PaperclipIcon,
-  SearchIcon,
-  UserIcon,
-  ZapIcon,
-} from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounce";
 import { useSearchQuery } from "../api/search.api";
-import type { SearchResults } from "../types/search.types";
+import { EMPTY_TASK_FILTERS } from "../types/search.types";
+import type { SearchEntityType, SearchResults, SearchTaskFilters } from "../types/search.types";
+import { SearchTypeTabs } from "./search-type-tabs";
+import { SearchFiltersPanel } from "./search-filters-panel";
+import { SearchResultGroups } from "./search-result-groups";
+import { SearchRecentPanel } from "./search-recent-panel";
+import { buildAdvancedSearchUrl } from "../utils/build-search-url";
 
 const QUICK_SEARCH_LIMIT = 5;
 
@@ -27,10 +25,18 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [type, setType] = useState<SearchEntityType | undefined>(undefined);
+  const [taskFilters, setTaskFilters] = useState<SearchTaskFilters>(EMPTY_TASK_FILTERS);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
 
   const { data, isFetching } = useSearchQuery(
-    { workspaceId: workspaceId ?? "", q: debouncedQuery, limit: QUICK_SEARCH_LIMIT },
+    {
+      workspaceId: workspaceId ?? "",
+      q: debouncedQuery,
+      type,
+      limit: QUICK_SEARCH_LIMIT,
+      ...taskFilters,
+    },
     { skip: !workspaceId || debouncedQuery.length === 0 },
   );
 
@@ -44,13 +50,24 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const goToWorkspace = () => {
-    if (!workspaceId) return;
-    router.push(`/workspaces/${workspaceId}`);
+  const closeAndReset = () => {
     setIsOpen(false);
     setQuery("");
   };
 
+  const goToWorkspace = () => {
+    if (!workspaceId) return;
+    router.push(`/workspaces/${workspaceId}`);
+    closeAndReset();
+  };
+
+  const goToAdvancedSearch = () => {
+    if (!workspaceId) return;
+    router.push(buildAdvancedSearchUrl(workspaceId, debouncedQuery, type, taskFilters));
+    closeAndReset();
+  };
+
+  const showFiltersPanel = !!workspaceId && (type === undefined || type === "task");
   const hasResults =
     !!data &&
     (data.tasks.length > 0 ||
@@ -79,119 +96,51 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
       />
 
       {isOpen && workspaceId ? (
-        <div className="absolute top-full left-0 z-50 mt-2 max-h-96 w-full min-w-72 overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md">
-          {debouncedQuery.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Type to search tasks, comments, attachments, members, sprints...
-            </p>
-          ) : isFetching ? (
-            <div className="flex flex-col gap-2 p-2">
-              <div className="h-8 animate-pulse rounded-md bg-muted/50" />
-              <div className="h-8 animate-pulse rounded-md bg-muted/50" />
-              <div className="h-8 animate-pulse rounded-md bg-muted/50" />
+        <div className="absolute top-full left-0 z-50 mt-2 w-[640px] max-w-[92vw] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md">
+          <SearchTypeTabs value={type} onChange={setType} />
+
+          <div className="flex max-h-96">
+            <div className="flex-1 overflow-y-auto p-1">
+              {debouncedQuery.length === 0 ? (
+                <SearchRecentPanel workspaceId={workspaceId} onSelect={closeAndReset} />
+              ) : isFetching ? (
+                <div className="flex flex-col gap-2 p-2">
+                  <div className="h-8 animate-pulse rounded-md bg-muted/50" />
+                  <div className="h-8 animate-pulse rounded-md bg-muted/50" />
+                  <div className="h-8 animate-pulse rounded-md bg-muted/50" />
+                </div>
+              ) : !hasResults ? (
+                <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                  No results found for &ldquo;{debouncedQuery}&rdquo;.
+                </p>
+              ) : (
+                <SearchResultGroups
+                  results={data as SearchResults}
+                  activeType={type}
+                  onSelect={goToWorkspace}
+                />
+              )}
             </div>
-          ) : !hasResults ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              No results found for &ldquo;{debouncedQuery}&rdquo;.
-            </p>
-          ) : (
-            <SearchResultGroups results={data as SearchResults} onSelect={goToWorkspace} />
-          )}
+            {showFiltersPanel ? (
+              <SearchFiltersPanel
+                workspaceId={workspaceId}
+                filters={taskFilters}
+                onChange={setTaskFilters}
+              />
+            ) : null}
+          </div>
+
+          {debouncedQuery.length > 0 ? (
+            <button
+              type="button"
+              onClick={goToAdvancedSearch}
+              className="block w-full border-t border-border/60 px-3 py-2 text-center text-xs font-medium text-primary hover:bg-muted"
+            >
+              View all results
+            </button>
+          ) : null}
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function SearchResultGroups({
-  results,
-  onSelect,
-}: {
-  results: SearchResults;
-  onSelect: () => void;
-}) {
-  return (
-    <>
-      <ResultGroup label="Tasks" icon={CheckSquareIcon}>
-        {results.tasks.map((task) => (
-          <ResultItem key={task.id} onSelect={onSelect} title={task.title} subtitle={task.status} />
-        ))}
-      </ResultGroup>
-      <ResultGroup label="Comments" icon={MessageSquareIcon}>
-        {results.comments.map((comment) => (
-          <ResultItem key={comment.id} onSelect={onSelect} title={comment.content} subtitle="Comment" />
-        ))}
-      </ResultGroup>
-      <ResultGroup label="Attachments" icon={PaperclipIcon}>
-        {results.attachments.map((attachment) => (
-          <ResultItem key={attachment.id} onSelect={onSelect} title={attachment.fileName} subtitle={attachment.mimeType} />
-        ))}
-      </ResultGroup>
-      <ResultGroup label="Members" icon={UserIcon}>
-        {results.members.map((member) => (
-          <ResultItem key={member.id} onSelect={onSelect} title={member.name} subtitle={member.email} />
-        ))}
-      </ResultGroup>
-      <ResultGroup label="Sprints" icon={ZapIcon}>
-        {results.sprints.map((sprint) => (
-          <ResultItem key={sprint.id} onSelect={onSelect} title={sprint.name} subtitle={sprint.status} />
-        ))}
-      </ResultGroup>
-      <ResultGroup label="Columns" icon={Columns3Icon}>
-        {results.columns.map((column) => (
-          <ResultItem key={column.id} onSelect={onSelect} title={column.name} subtitle="Column" />
-        ))}
-      </ResultGroup>
-    </>
-  );
-}
-
-function ResultGroup({
-  label,
-  icon: Icon,
-  children,
-}: {
-  label: string;
-  icon: typeof SearchIcon;
-  children: React.ReactNode;
-}) {
-  const items = children as React.ReactNode[];
-  if (!Array.isArray(items) || items.length === 0) return null;
-  return (
-    <div className="mb-1 last:mb-0">
-      <p className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-muted-foreground">
-        <Icon className="size-3.5" />
-        {label}
-      </p>
-      {children}
-    </div>
-  );
-}
-
-function ResultItem({
-  title,
-  subtitle,
-  onSelect,
-}: {
-  title: string;
-  subtitle: string;
-  onSelect: () => void;
-}) {
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onSelect}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect();
-        }
-      }}
-      className="flex w-full cursor-pointer flex-col rounded-md px-2 py-1.5 text-left hover:bg-accent"
-    >
-      <span className="truncate text-sm text-foreground">{title}</span>
-      <span className="truncate text-xs text-muted-foreground">{subtitle}</span>
     </div>
   );
 }
