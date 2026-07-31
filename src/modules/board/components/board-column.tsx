@@ -13,7 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
-import { useDeleteColumnMutation, type WorkspaceColumn } from "@/features/workspace";
+import {
+  useDeleteColumnMutation,
+  type WorkspaceColumn,
+  type WorkspaceMember,
+} from "@/features/workspace";
 import type { Task } from "@/features/task";
 import { BoardTaskCard } from "./board-task-card";
 import { ColumnFormDialog } from "./column-form-dialog";
@@ -26,14 +30,14 @@ export function BoardColumn({
   workspaceId,
   column,
   tasks,
-  assigneeNameById,
+  members,
   onAddTask,
   onTaskClick,
 }: {
   workspaceId: string;
   column: WorkspaceColumn;
   tasks: Task[];
-  assigneeNameById: Map<string, string>;
+  members: WorkspaceMember[];
   onAddTask: () => void;
   onTaskClick: (task: Task) => void;
 }) {
@@ -113,9 +117,8 @@ export function BoardColumn({
             <BoardTaskCard
               key={task.id}
               task={task}
-              assigneeNames={task.assigneeIds
-                .map((id) => assigneeNameById.get(id))
-                .filter((name): name is string => !!name)}
+              workspaceId={workspaceId}
+              members={members}
               onClick={() => onTaskClick(task)}
             />
           ))}

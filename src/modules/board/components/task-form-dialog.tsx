@@ -108,7 +108,9 @@ export function TaskFormDialog({
           assigneeIds,
         }).unwrap();
       } else {
-        await createTask({
+        // task.md: chưa hỗ trợ gán assigneeIds lúc tạo — tạo Task xong mới
+        // PATCH gán nếu người dùng đã chọn Assignee trong form tạo.
+        const created = await createTask({
           columnId: values.columnId,
           title: values.title,
           description: values.description || undefined,
@@ -116,6 +118,9 @@ export function TaskFormDialog({
           startDate: values.startDate || undefined,
           dueDate: values.dueDate || undefined,
         }).unwrap();
+        if (assigneeIds.length > 0) {
+          await updateTask({ id: created.id, workspaceId, assigneeIds }).unwrap();
+        }
       }
       onOpenChange(false);
     } catch (error) {
@@ -215,16 +220,14 @@ export function TaskFormDialog({
               </p>
             ) : null}
 
-            {isEdit ? (
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="task-assignee">Assignee</Label>
-                <AssigneeMultiSelect
-                  members={members ?? []}
-                  selectedIds={assigneeIds}
-                  onChange={setAssigneeIds}
-                />
-              </div>
-            ) : null}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-assignee">Assignee</Label>
+              <AssigneeMultiSelect
+                members={members ?? []}
+                selectedIds={assigneeIds}
+                onChange={setAssigneeIds}
+              />
+            </div>
 
             {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
           </div>

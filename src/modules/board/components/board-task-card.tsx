@@ -4,8 +4,15 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { CalendarIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
-import { getInitials } from "@/shared/utils/initials";
-import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, type Task } from "@/features/task";
+import { getApiErrorMessage } from "@/shared/utils/api-error";
+import {
+  PRIORITY_BADGE_CLASS,
+  PRIORITY_LABEL,
+  useUpdateTaskMutation,
+  type Task,
+} from "@/features/task";
+import type { WorkspaceMember } from "@/features/workspace";
+import { AssigneeMultiSelect } from "./assignee-multi-select";
 
 function formatShortDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -16,28 +23,44 @@ function formatShortDate(value: string) {
 
 export function BoardTaskCard({
   task,
-  assigneeNames,
+  workspaceId,
+  members,
   onClick,
 }: {
   task: Task;
-  assigneeNames?: string[];
+  workspaceId: string;
+  members: WorkspaceMember[];
   onClick: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id, data: { type: "task", task } });
+  const [updateTask] = useUpdateTaskMutation();
+
+  const handleAssigneeChange = async (assigneeIds: string[]) => {
+    try {
+      await updateTask({ id: task.id, workspaceId, assigneeIds }).unwrap();
+    } catch (error) {
+      window.alert(getApiErrorMessage(error as never));
+    }
+  };
 
   return (
-    <button
-      type="button"
+    <div
       ref={setNodeRef}
-      onClick={onClick}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={
-        "flex w-full flex-col gap-2 rounded-2xl border border-border/60 bg-card p-3 text-left shadow-sm transition-opacity " +
-        (isDragging ? "opacity-40" : "opacity-100")
-      }
       {...listeners}
       {...attributes}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={
+        "flex w-full cursor-pointer flex-col gap-2 rounded-2xl border border-border/60 bg-card p-3 text-left shadow-sm transition-opacity " +
+        (isDragging ? "opacity-40" : "opacity-100")
+      }
     >
       <p className="text-sm font-medium text-foreground">{task.title}</p>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -51,24 +74,12 @@ export function BoardTaskCard({
           </span>
         ) : null}
       </div>
-      {assigneeNames && assigneeNames.length > 0 ? (
-        <div className="flex -space-x-2">
-          {assigneeNames.slice(0, 3).map((name) => (
-            <span
-              key={name}
-              title={name}
-              className="flex size-5 items-center justify-center rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-secondary-foreground"
-            >
-              {getInitials(name)}
-            </span>
-          ))}
-          {assigneeNames.length > 3 ? (
-            <span className="flex size-5 items-center justify-center rounded-full border-2 border-card bg-muted text-[10px] font-semibold text-muted-foreground">
-              +{assigneeNames.length - 3}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-    </button>
+      <AssigneeMultiSelect
+        members={members}
+        selectedIds={task.assigneeIds}
+        onChange={handleAssigneeChange}
+        compact
+      />
+    </div>
   );
 }

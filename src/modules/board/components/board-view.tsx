@@ -68,12 +68,6 @@ export function BoardView({
   );
   const columnIds = useMemo(() => columns.map((column) => column.id), [columns]);
 
-  const assigneeNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const member of members ?? []) map.set(member.user.id, member.user.name);
-    return map;
-  }, [members]);
-
   const tasksByColumn = useMemo(() => {
     const map = new Map<string, Task[]>();
     for (const task of tasks ?? []) {
@@ -178,7 +172,7 @@ export function BoardView({
                 workspaceId={workspaceId}
                 column={column}
                 tasks={tasksByColumn.get(column.id) ?? []}
-                assigneeNameById={assigneeNameById}
+                members={members ?? []}
                 onAddTask={() => setCreateColumnId(column.id)}
                 onTaskClick={(task) => setSelectedTaskId(task.id)}
               />
@@ -191,9 +185,8 @@ export function BoardView({
           {activeTask ? (
             <BoardTaskCard
               task={activeTask}
-              assigneeNames={activeTask.assigneeIds
-                .map((id) => assigneeNameById.get(id))
-                .filter((name): name is string => !!name)}
+              workspaceId={workspaceId}
+              members={members ?? []}
               onClick={() => {}}
             />
           ) : null}
