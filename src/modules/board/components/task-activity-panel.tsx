@@ -16,6 +16,7 @@ import {
   useUpdateCommentMutation,
 } from "@/features/comment";
 import { useListTaskActivityQuery } from "@/features/task";
+import { useTypingIndicator } from "@/features/realtime";
 import type { WorkspaceMember } from "@/features/workspace";
 
 function formatDateTime(value: string): string {
@@ -49,10 +50,12 @@ const MENTION_TRIGGER_PATTERN = /(?:^|\s)@([^\s@]*)$/;
 
 export function TaskActivityPanel({
   taskId,
+  workspaceId,
   members,
   memberNameById,
 }: {
   taskId: string;
+  workspaceId: string;
   members: WorkspaceMember[];
   memberNameById: Map<string, string>;
 }) {
@@ -64,6 +67,8 @@ export function TaskActivityPanel({
   const [createComment, { isLoading: isPosting }] = useCreateCommentMutation();
   const [updateComment] = useUpdateCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
+  const { typingUserNames, notifyTyping, notifyStoppedTyping } =
+    useTypingIndicator(workspaceId, taskId);
 
   const [draft, setDraft] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -84,6 +89,8 @@ export function TaskActivityPanel({
     setDraft(value);
     const match = value.slice(0, caret).match(MENTION_TRIGGER_PATTERN);
     setMentionQuery(match ? match[1] : null);
+    if (value.trim()) notifyTyping();
+    else notifyStoppedTyping();
   };
 
   const handlePickMention = (name: string) => {
@@ -113,6 +120,7 @@ export function TaskActivityPanel({
       }).unwrap();
       setDraft("");
       setMentionQuery(null);
+      notifyStoppedTyping();
     } catch (error) {
       window.alert(getApiErrorMessage(error as never));
     }
@@ -204,6 +212,13 @@ export function TaskActivityPanel({
               ) : null}
             </div>
           </div>
+
+          {typingUserNames.length > 0 ? (
+            <p className="pl-10 text-xs text-muted-foreground italic">
+              {typingUserNames.join(", ")}{" "}
+              {typingUserNames.length === 1 ? "is" : "are"} typing...
+            </p>
+          ) : null}
 
           {isCommentsLoading ? (
             <div className="h-16 animate-pulse rounded-xl bg-muted/50" />
