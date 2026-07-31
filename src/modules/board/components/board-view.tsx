@@ -191,9 +191,9 @@ export function BoardView({
           {activeTask ? (
             <BoardTaskCard
               task={activeTask}
-              assigneeName={
-                activeTask.assigneeId ? assigneeNameById.get(activeTask.assigneeId) : undefined
-              }
+              assigneeNames={activeTask.assigneeIds
+                .map((id) => assigneeNameById.get(id))
+                .filter((name): name is string => !!name)}
               onClick={() => {}}
             />
           ) : null}

@@ -16,11 +16,11 @@ function formatShortDate(value: string) {
 
 export function BoardTaskCard({
   task,
-  assigneeName,
+  assigneeNames,
   onClick,
 }: {
   task: Task;
-  assigneeName?: string;
+  assigneeNames?: string[];
   onClick: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -51,12 +51,22 @@ export function BoardTaskCard({
           </span>
         ) : null}
       </div>
-      {assigneeName ? (
-        <div className="flex items-center gap-1.5">
-          <span className="flex size-5 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-secondary-foreground">
-            {getInitials(assigneeName)}
-          </span>
-          <span className="truncate text-xs text-muted-foreground">{assigneeName}</span>
+      {assigneeNames && assigneeNames.length > 0 ? (
+        <div className="flex -space-x-2">
+          {assigneeNames.slice(0, 3).map((name) => (
+            <span
+              key={name}
+              title={name}
+              className="flex size-5 items-center justify-center rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-secondary-foreground"
+            >
+              {getInitials(name)}
+            </span>
+          ))}
+          {assigneeNames.length > 3 ? (
+            <span className="flex size-5 items-center justify-center rounded-full border-2 border-card bg-muted text-[10px] font-semibold text-muted-foreground">
+              +{assigneeNames.length - 3}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </button>

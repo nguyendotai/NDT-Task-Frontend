@@ -11,6 +11,12 @@ interface DeleteAttachmentRequest {
   taskId: string;
 }
 
+interface RenameAttachmentRequest {
+  id: string;
+  taskId: string;
+  fileName: string;
+}
+
 export const attachmentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     listAttachments: builder.query<Attachment[], string>({
@@ -38,6 +44,16 @@ export const attachmentApi = baseApi.injectEndpoints({
         { type: "Attachment", id: taskId },
       ],
     }),
+    renameAttachment: builder.mutation<Attachment, RenameAttachmentRequest>({
+      query: ({ id, fileName }) => ({
+        url: `/attachments/${id}/rename`,
+        method: "PATCH",
+        body: { fileName },
+      }),
+      invalidatesTags: (_result, _error, { taskId }) => [
+        { type: "Attachment", id: taskId },
+      ],
+    }),
   }),
 });
 
@@ -45,4 +61,5 @@ export const {
   useListAttachmentsQuery,
   useUploadAttachmentMutation,
   useDeleteAttachmentMutation,
+  useRenameAttachmentMutation,
 } = attachmentApi;
