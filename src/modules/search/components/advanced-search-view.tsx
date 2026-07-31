@@ -25,6 +25,9 @@ type InitialQuery = {
   reporterId?: string;
   done?: string;
   label?: string;
+  sprintId?: string;
+  updatedFrom?: string;
+  updatedTo?: string;
 };
 
 const VALID_TYPES: SearchEntityType[] = ["task", "comment", "attachment", "member", "sprint", "column"];
@@ -73,6 +76,9 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
     reporterId: initialQuery.reporterId,
     done: initialQuery.done === undefined ? undefined : initialQuery.done === "true",
     label: initialQuery.label,
+    sprintId: initialQuery.sprintId,
+    updatedFrom: initialQuery.updatedFrom,
+    updatedTo: initialQuery.updatedTo,
     ...EMPTY_TASK_FILTERS,
   });
   const [offset, setOffset] = useState(0);

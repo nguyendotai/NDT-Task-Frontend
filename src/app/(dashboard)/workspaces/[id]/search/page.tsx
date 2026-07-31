@@ -17,6 +17,9 @@ export default async function AdvancedSearchPage({
     reporterId?: string;
     done?: string;
     label?: string;
+    sprintId?: string;
+    updatedFrom?: string;
+    updatedTo?: string;
   }>;
 }) {
   const { id } = await params;
