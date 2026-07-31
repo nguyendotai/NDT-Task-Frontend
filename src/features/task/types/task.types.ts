@@ -16,11 +16,10 @@ export interface Task {
   backlogOrder?: number | null;
   startDate?: string | null;
   dueDate?: string | null;
-  assigneeId?: string | null;
+  assigneeIds: string[];
   // Bổ sung theo yêu cầu (không thuộc field chuẩn task.md) — hiển thị ở modal
   // chi tiết Task.
   storyPoints?: number | null;
-  labels: string[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -36,4 +35,8 @@ export interface TaskActivityEntry {
   action: string;
   metadata?: Record<string, unknown> | null;
   createdAt: string;
+}
+
+export interface TaskWatcher {
+  userId: string;
 }

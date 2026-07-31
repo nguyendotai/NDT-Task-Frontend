@@ -107,7 +107,12 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
                     {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "—"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {task.assigneeId ? assigneeNameById.get(task.assigneeId) ?? "—" : "—"}
+                    {task.assigneeIds.length > 0
+                      ? task.assigneeIds
+                          .map((id) => assigneeNameById.get(id))
+                          .filter((name): name is string => !!name)
+                          .join(", ") || "—"
+                      : "—"}
                   </TableCell>
                   <TableCell onClick={(event) => event.stopPropagation()}>
                     <DropdownMenu>

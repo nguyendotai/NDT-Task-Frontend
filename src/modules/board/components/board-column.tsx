@@ -113,7 +113,9 @@ export function BoardColumn({
             <BoardTaskCard
               key={task.id}
               task={task}
-              assigneeName={task.assigneeId ? assigneeNameById.get(task.assigneeId) : undefined}
+              assigneeNames={task.assigneeIds
+                .map((id) => assigneeNameById.get(id))
+                .filter((name): name is string => !!name)}
               onClick={() => onTaskClick(task)}
             />
           ))}

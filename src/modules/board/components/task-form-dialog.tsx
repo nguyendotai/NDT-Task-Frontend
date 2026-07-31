@@ -31,6 +31,7 @@ import {
   useCreateTaskMutation,
   useUpdateTaskMutation,
 } from "@/features/task";
+import { AssigneeMultiSelect } from "./assignee-multi-select";
 
 interface TaskFormDialogProps {
   workspaceId: string;
@@ -51,6 +52,7 @@ export function TaskFormDialog({
 }: TaskFormDialogProps) {
   const isEdit = !!task;
   const [formError, setFormError] = useState<string | null>(null);
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const { data: members } = useListMembersQuery(workspaceId, { skip: !open });
   const [createTask, { isLoading: isCreating }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
@@ -71,7 +73,6 @@ export function TaskFormDialog({
       priority: "MEDIUM",
       startDate: "",
       dueDate: "",
-      assigneeId: "",
     },
   });
 
@@ -84,9 +85,9 @@ export function TaskFormDialog({
       priority: task?.priority ?? "MEDIUM",
       startDate: task?.startDate?.slice(0, 10) ?? "",
       dueDate: task?.dueDate?.slice(0, 10) ?? "",
-      assigneeId: task?.assigneeId ?? "",
     });
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAssigneeIds(task?.assigneeIds ?? []);
     setFormError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, task]);
@@ -104,7 +105,7 @@ export function TaskFormDialog({
           priority: values.priority,
           startDate: values.startDate || undefined,
           dueDate: values.dueDate || undefined,
-          assigneeId: values.assigneeId || undefined,
+          assigneeIds,
         }).unwrap();
       } else {
         await createTask({
@@ -217,29 +218,10 @@ export function TaskFormDialog({
             {isEdit ? (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="task-assignee">Assignee</Label>
-                <Controller
-                  control={control}
-                  name="assigneeId"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value || "none"}
-                      onValueChange={(value) =>
-                        field.onChange(value === "none" ? "" : value)
-                      }
-                    >
-                      <SelectTrigger id="task-assignee" className="w-full">
-                        <SelectValue placeholder="Unassigned" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Unassigned</SelectItem>
-                        {members?.map((member) => (
-                          <SelectItem key={member.user.id} value={member.user.id}>
-                            {member.user.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                <AssigneeMultiSelect
+                  members={members ?? []}
+                  selectedIds={assigneeIds}
+                  onChange={setAssigneeIds}
                 />
               </div>
             ) : null}

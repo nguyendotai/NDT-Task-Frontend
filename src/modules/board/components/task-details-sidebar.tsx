@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { XIcon } from "lucide-react";
-import { Badge } from "@/shared/components/ui/badge";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import {
@@ -14,15 +11,15 @@ import {
 } from "@/shared/components/ui/select";
 import type { Task, TaskPriority } from "@/features/task";
 import type { WorkspaceColumn, WorkspaceMember } from "@/features/workspace";
+import { AssigneeMultiSelect } from "./assignee-multi-select";
 
 export interface TaskDetailsPatch {
   columnId?: string;
-  assigneeId?: string;
+  assigneeIds?: string[];
   priority?: TaskPriority;
   startDate?: string;
   dueDate?: string;
   storyPoints?: number;
-  labels?: string[];
 }
 
 function formatDateTime(value: string): string {
@@ -45,22 +42,7 @@ export function TaskDetailsSidebar({
   memberNameById: Map<string, string>;
   onChange: (patch: TaskDetailsPatch) => void;
 }) {
-  const [labelDraft, setLabelDraft] = useState("");
   const reporterName = memberNameById.get(task.createdBy) ?? "Unknown";
-
-  const handleAddLabel = () => {
-    const value = labelDraft.trim();
-    if (!value || task.labels.includes(value)) {
-      setLabelDraft("");
-      return;
-    }
-    onChange({ labels: [...task.labels, value] });
-    setLabelDraft("");
-  };
-
-  const handleRemoveLabel = (label: string) => {
-    onChange({ labels: task.labels.filter((item) => item !== label) });
-  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -88,24 +70,11 @@ export function TaskDetailsSidebar({
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs text-muted-foreground">Assignee</Label>
-            <Select<string>
-              value={task.assigneeId ?? "none"}
-              onValueChange={(value) => {
-                if (value && value !== "none") onChange({ assigneeId: value });
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Unassigned" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Unassigned</SelectItem>
-                {members.map((member) => (
-                  <SelectItem key={member.user.id} value={member.user.id}>
-                    {member.user.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <AssigneeMultiSelect
+              members={members}
+              selectedIds={task.assigneeIds}
+              onChange={(assigneeIds) => onChange({ assigneeIds })}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -157,42 +126,6 @@ export function TaskDetailsSidebar({
                 }
               }}
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-detail-labels" className="text-xs text-muted-foreground">
-              Labels
-            </Label>
-            <Input
-              id="task-detail-labels"
-              placeholder="Type a label, press Enter"
-              value={labelDraft}
-              onChange={(event) => setLabelDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleAddLabel();
-                }
-              }}
-            />
-            {task.labels.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {task.labels.map((label) => (
-                  <Badge key={label} variant="secondary" className="gap-1">
-                    {label}
-                    <button
-                      type="button"
-                      aria-label={`Remove label ${label}`}
-                      onClick={() => handleRemoveLabel(label)}
-                    >
-                      <XIcon className="size-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">None</p>
-            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
