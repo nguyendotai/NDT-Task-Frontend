@@ -72,3 +72,12 @@ export interface WorkspaceInvitation {
   expiresAt: string;
   createdAt: string;
 }
+
+export interface WorkspaceInvitationAcceptResult {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  role: WorkspaceRole;
+  invitedBy?: string | null;
+  joinedAt: string;
+}

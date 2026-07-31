@@ -13,9 +13,10 @@ import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { loginSchema, type LoginFormValues } from "../schemas/login.schema";
 import { useLoginMutation } from "../api/auth.api";
 import { setCredentials } from "../store/auth.slice";
+import { resolveSafeRedirect } from "../utils/safe-redirect";
 import { GoogleButton } from "./google-button";
 
-export function LoginForm() {
+export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
@@ -35,7 +36,7 @@ export function LoginForm() {
     try {
       const result = await login(values).unwrap();
       dispatch(setCredentials(result));
-      router.push("/");
+      router.push(resolveSafeRedirect(redirectTo));
     } catch (error) {
       setFormError(getApiErrorMessage(error as never));
     }
@@ -110,7 +111,10 @@ export function LoginForm() {
 
       <p className="mt-7 text-center text-base text-muted-foreground">
         Chưa có tài khoản?{" "}
-        <Link href="/register" className="font-medium text-foreground hover:underline">
+        <Link
+          href={redirectTo ? `/register?redirect=${encodeURIComponent(redirectTo)}` : "/register"}
+          className="font-medium text-foreground hover:underline"
+        >
           Đăng ký
         </Link>
       </p>

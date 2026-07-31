@@ -16,6 +16,8 @@ export {
   useRemoveMemberMutation,
   useListInvitationsQuery,
   useRevokeInvitationMutation,
+  useAcceptInvitationMutation,
+  useRejectInvitationMutation,
   useCreateColumnMutation,
   useUpdateColumnMutation,
   useDeleteColumnMutation,
@@ -32,6 +34,7 @@ export type {
   WorkspaceVisibility,
   WorkspaceMember,
   WorkspaceInvitation,
+  WorkspaceInvitationAcceptResult,
   InvitationStatus,
 } from "./types/workspace.types";
 export {
