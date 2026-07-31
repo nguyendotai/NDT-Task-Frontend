@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser, selectIsBootstrapped } from "@/features/auth";
+import { useRealtimeConnection } from "@/features/realtime";
 import { DashboardHeader } from "@/modules/dashboard/components/dashboard-header";
 import { DashboardSidebar } from "@/modules/dashboard/components/dashboard-sidebar";
 
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const user = useAppSelector(selectCurrentUser);
   const isBootstrapped = useAppSelector(selectIsBootstrapped);
+  useRealtimeConnection();
 
   useEffect(() => {
     if (isBootstrapped && !user) {
