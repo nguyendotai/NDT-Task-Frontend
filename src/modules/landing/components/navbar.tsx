@@ -72,10 +72,11 @@ export function Navbar() {
             <AccountMenu />
           ) : (
             <>
-              <Button variant="ghost" render={<Link href="/login" />}>
+              <Button variant="ghost" nativeButton={false} render={<Link href="/login" />}>
                 Login
               </Button>
               <Button
+                nativeButton={false}
                 render={<Link href="/register" />}
                 className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
               >
@@ -135,10 +136,11 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Button variant="outline" render={<Link href="/login" />}>
+                  <Button variant="outline" nativeButton={false} render={<Link href="/login" />}>
                     Login
                   </Button>
                   <Button
+                    nativeButton={false}
                     render={<Link href="/register" />}
                     className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
                   >

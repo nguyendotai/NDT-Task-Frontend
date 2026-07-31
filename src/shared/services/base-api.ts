@@ -40,7 +40,11 @@ const baseQueryWithEnvelope: BaseQueryFn<
   const result = await rawBaseQuery(args, api, extraOptions);
   if (result.data) {
     const envelope = result.data as ApiEnvelope<unknown>;
-    return { data: envelope.data, meta: result.meta };
+    // Endpoint trả void (DELETE, PATCH .../read-all...) bị NestJS bỏ hẳn key
+    // `data` khi serialize JSON (JSON.stringify loại field `undefined`) — nếu
+    // không có fallback, RTK Query coi `{ data: undefined }` là kết quả không
+    // hợp lệ (không phải `data` cũng không phải `error`) và báo lỗi console.
+    return { data: envelope.data ?? {}, meta: result.meta };
   }
   return result;
 };

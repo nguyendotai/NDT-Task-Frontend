@@ -57,6 +57,7 @@ export function WorkspacesView() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="font-heading text-2xl font-bold">My workspaces</h1>
         <Button
+          nativeButton={false}
           render={<Link href="/workspaces/new" />}
           className="gap-1.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
         >

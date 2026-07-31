@@ -112,7 +112,12 @@ export function InvitationAcceptView({ token }: { token: string }) {
             <p className="text-sm text-muted-foreground">
               Bạn có thể yêu cầu người quản trị Workspace mời lại sau nếu đổi ý.
             </p>
-            <Button variant="outline" className="mt-2 w-full" render={<Link href="/dashboard" />}>
+            <Button
+              variant="outline"
+              className="mt-2 w-full"
+              nativeButton={false}
+              render={<Link href="/dashboard" />}
+            >
               Về Dashboard
             </Button>
           </div>
@@ -123,7 +128,12 @@ export function InvitationAcceptView({ token }: { token: string }) {
             <XCircleIcon className="size-10 text-destructive" />
             <h1 className="font-heading text-xl font-bold text-foreground">Không thể xử lý lời mời</h1>
             <p className="text-sm text-destructive">{state.message}</p>
-            <Button variant="outline" className="mt-2 w-full" render={<Link href="/dashboard" />}>
+            <Button
+              variant="outline"
+              className="mt-2 w-full"
+              nativeButton={false}
+              render={<Link href="/dashboard" />}
+            >
               Về Dashboard
             </Button>
           </div>

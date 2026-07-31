@@ -12,6 +12,7 @@ export function HeroCta() {
   return (
     <Button
       size="lg"
+      nativeButton={false}
       render={<Link href={user ? "/dashboard" : "/register"} />}
       className="h-11 gap-2 bg-gradient-to-r from-blue-500 to-violet-500 px-6 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
     >
