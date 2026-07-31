@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SearchIcon } from "lucide-react";
+import { ArrowRightIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounce";
 import { useSearchQuery } from "../api/search.api";
 import { EMPTY_TASK_FILTERS } from "../types/search.types";
-import type { SearchEntityType, SearchResults, SearchTaskFilters } from "../types/search.types";
-import { SearchTypeTabs } from "./search-type-tabs";
+import type { SearchResults, SearchTaskFilters } from "../types/search.types";
 import { SearchFiltersPanel } from "./search-filters-panel";
 import { SearchResultGroups } from "./search-result-groups";
 import { SearchRecentPanel } from "./search-recent-panel";
@@ -25,7 +24,6 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<SearchEntityType | undefined>(undefined);
   const [taskFilters, setTaskFilters] = useState<SearchTaskFilters>(EMPTY_TASK_FILTERS);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
 
@@ -33,7 +31,6 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
     {
       workspaceId: workspaceId ?? "",
       q: debouncedQuery,
-      type,
       limit: QUICK_SEARCH_LIMIT,
       ...taskFilters,
     },
@@ -63,11 +60,10 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
 
   const goToAdvancedSearch = () => {
     if (!workspaceId) return;
-    router.push(buildAdvancedSearchUrl(workspaceId, debouncedQuery, type, taskFilters));
+    router.push(buildAdvancedSearchUrl(workspaceId, debouncedQuery, undefined, taskFilters));
     closeAndReset();
   };
 
-  const showFiltersPanel = !!workspaceId && (type === undefined || type === "task");
   const hasResults =
     !!data &&
     (data.tasks.length > 0 ||
@@ -97,8 +93,6 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
 
       {isOpen && workspaceId ? (
         <div className="absolute top-full left-0 z-50 mt-2 w-[640px] max-w-[92vw] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md">
-          <SearchTypeTabs value={type} onChange={setType} />
-
           <div className="flex max-h-96">
             <div className="flex-1 overflow-y-auto p-1">
               {debouncedQuery.length === 0 ? (
@@ -116,29 +110,25 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
               ) : (
                 <SearchResultGroups
                   results={data as SearchResults}
-                  activeType={type}
+                  activeType={undefined}
                   onSelect={goToWorkspace}
                 />
               )}
             </div>
-            {showFiltersPanel ? (
-              <SearchFiltersPanel
-                workspaceId={workspaceId}
-                filters={taskFilters}
-                onChange={setTaskFilters}
-              />
-            ) : null}
+            <SearchFiltersPanel workspaceId={workspaceId} filters={taskFilters} onChange={setTaskFilters} />
           </div>
 
-          {debouncedQuery.length > 0 ? (
-            <button
-              type="button"
-              onClick={goToAdvancedSearch}
-              className="block w-full border-t border-border/60 px-3 py-2 text-center text-xs font-medium text-primary hover:bg-muted"
-            >
-              View all results
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={goToAdvancedSearch}
+            className="flex w-full items-center justify-between border-t border-border/60 px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+          >
+            <span className="flex items-center gap-2">
+              <SearchIcon className="size-3.5" />
+              View all work items
+            </span>
+            <ArrowRightIcon className="size-3.5" />
+          </button>
         </div>
       ) : null}
     </div>
