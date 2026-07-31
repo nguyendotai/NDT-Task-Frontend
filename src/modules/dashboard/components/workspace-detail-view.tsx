@@ -6,6 +6,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { getWorkspaceAvatarGradient, useGetWorkspaceQuery } from "@/features/workspace";
+import { useWorkspaceRealtime } from "@/features/realtime";
 import { BoardView } from "@/modules/board/components/board-view";
 import { ListView } from "@/modules/board/components/list-view";
 import { MemberView } from "@/modules/board/components/member-view";
@@ -36,6 +37,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
     isError,
     refetch,
   } = useGetWorkspaceQuery(workspaceId);
+  useWorkspaceRealtime(workspaceId);
 
   if (isLoading) {
     return (
