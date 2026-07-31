@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser } from "@/features/auth";
+import { usePresence } from "@/features/realtime";
 import { getInitials } from "@/shared/utils/initials";
 import {
   useListInvitationsQuery,
@@ -26,6 +27,7 @@ import { InviteMemberDialog } from "./invite-member-dialog";
 export function MemberView({ workspaceId }: { workspaceId: string }) {
   const currentUser = useAppSelector(selectCurrentUser);
   const { data: members, isLoading } = useListMembersQuery(workspaceId);
+  const onlineUserIds = usePresence(workspaceId);
   const [updateRole] = useUpdateMemberRoleMutation();
   const [removeMember] = useRemoveMemberMutation();
   const [isInviteOpen, setInviteOpen] = useState(false);
@@ -80,8 +82,14 @@ export function MemberView({ workspaceId }: { workspaceId: string }) {
               key={member.id}
               className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3"
             >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
+              <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
                 {getInitials(member.user.name)}
+                {onlineUserIds.has(member.user.id) ? (
+                  <span
+                    title="Online"
+                    className="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-card bg-green-500"
+                  />
+                ) : null}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">

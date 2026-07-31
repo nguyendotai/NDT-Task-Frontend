@@ -157,6 +157,7 @@ export function TaskDetailModal({
 
             <TaskActivityPanel
               taskId={task.id}
+              workspaceId={workspaceId}
               members={members}
               memberNameById={memberNameById}
             />
