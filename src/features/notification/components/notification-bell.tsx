@@ -14,6 +14,7 @@ import {
   useMarkAllNotificationsReadMutation,
   useMarkNotificationReadMutation,
 } from "../api/notification.api";
+import { useNotificationRealtime } from "../hooks/use-notification-realtime";
 import type { Notification } from "../types/notification.types";
 
 function formatRelativeTime(value: string): string {
@@ -29,10 +30,8 @@ function formatRelativeTime(value: string): string {
 }
 
 export function NotificationBell() {
-  // Chưa có Realtime (Socket.IO) — poll định kỳ 30s để tương đối cập nhật.
-  const { data: notifications, isLoading } = useListNotificationsQuery(undefined, {
-    pollingInterval: 30000,
-  });
+  useNotificationRealtime();
+  const { data: notifications, isLoading } = useListNotificationsQuery();
   const [markRead] = useMarkNotificationReadMutation();
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsReadMutation();
   const [deleteNotification] = useDeleteNotificationMutation();
