@@ -83,6 +83,8 @@ export interface SearchParams {
   columnId?: string;
   dateFrom?: string;
   dateTo?: string;
+  updatedFrom?: string;
+  updatedTo?: string;
   sortBy?: "createdAt" | "updatedAt" | "priority" | "dueDate";
   order?: "asc" | "desc";
   limit?: number;
@@ -101,6 +103,9 @@ export interface SearchTaskFilters {
   reporterId?: string;
   done?: boolean;
   label?: string;
+  sprintId?: string;
+  updatedFrom?: string;
+  updatedTo?: string;
 }
 
 export const EMPTY_TASK_FILTERS: SearchTaskFilters = {};
