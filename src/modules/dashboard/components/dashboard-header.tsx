@@ -6,6 +6,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { AccountMenu } from "@/features/auth";
+import { NotificationBell } from "@/features/notification";
 
 export function DashboardHeader() {
   return (
@@ -23,6 +24,7 @@ export function DashboardHeader() {
           <PlusIcon className="size-4" />
           Create Workspace
         </Button>
+        <NotificationBell />
         <ThemeToggle />
         <AccountMenu />
       </div>
