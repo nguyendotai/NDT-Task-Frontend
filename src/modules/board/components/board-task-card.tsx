@@ -8,6 +8,9 @@ import { getApiErrorMessage } from "@/shared/utils/api-error";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABEL,
+  TYPE_BADGE_CLASS,
+  TYPE_LABEL,
+  getTaskKey,
   useUpdateTaskMutation,
   type Task,
 } from "@/features/task";
@@ -67,6 +70,10 @@ export function BoardTaskCard({
         <Badge className={PRIORITY_BADGE_CLASS[task.priority]} variant="outline">
           {PRIORITY_LABEL[task.priority]}
         </Badge>
+        <Badge className={TYPE_BADGE_CLASS[task.type]} variant="outline">
+          {TYPE_LABEL[task.type]}
+        </Badge>
+        <span className="text-xs text-muted-foreground">{getTaskKey(task)}</span>
         {task.dueDate ? (
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <CalendarIcon className="size-3" />

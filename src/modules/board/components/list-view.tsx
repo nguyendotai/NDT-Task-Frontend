@@ -24,7 +24,14 @@ import {
   useListTasksByWorkspaceQuery,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABEL,
+  TYPE_BADGE_CLASS,
+  TYPE_LABEL,
+  getTaskKey,
+  filterTasks,
+  EMPTY_TASK_FILTER_STATE,
+  type TaskFilterState,
 } from "@/features/task";
+import { TaskFilterBar } from "./task-filter-bar";
 import { TaskFormDialog } from "./task-form-dialog";
 import { TaskDetailModal } from "./task-detail-modal";
 
@@ -36,6 +43,8 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
 
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [taskFilters, setTaskFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTER_STATE);
 
   const columnNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -49,6 +58,11 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
     return map;
   }, [members]);
 
+  const filteredTasks = useMemo(
+    () => filterTasks(tasks ?? [], searchTerm, taskFilters),
+    [tasks, searchTerm, taskFilters],
+  );
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
@@ -61,7 +75,15 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <TaskFilterBar
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          filters={taskFilters}
+          onFiltersChange={setTaskFilters}
+          columns={board?.columns ?? []}
+          members={members ?? []}
+        />
         <Button type="button" size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
           <PlusIcon className="size-3.5" />
           New task
@@ -72,12 +94,18 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
         <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
           No tasks yet.
         </p>
+      ) : filteredTasks.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+          No tasks match your search/filter.
+        </p>
       ) : (
         <div className="rounded-2xl border border-border/60">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Key</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Column</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
@@ -87,10 +115,16 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <TableRow key={task.id} className="cursor-pointer" onClick={() => setSelectedTaskId(task.id)}>
+                  <TableCell className="text-muted-foreground">{getTaskKey(task)}</TableCell>
                   <TableCell className="max-w-64 truncate font-medium text-foreground">
                     {task.title}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={TYPE_BADGE_CLASS[task.type]} variant="outline">
+                      {TYPE_LABEL[task.type]}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {columnNameById.get(task.columnId) ?? "—"}

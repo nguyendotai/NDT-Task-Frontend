@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import type { Task, TaskPriority } from "@/features/task";
+import { TYPE_LABEL, type Task, type TaskPriority, type TaskType } from "@/features/task";
 import type { WorkspaceColumn, WorkspaceMember } from "@/features/workspace";
 import { AssigneeMultiSelect } from "./assignee-multi-select";
 
@@ -17,6 +17,7 @@ export interface TaskDetailsPatch {
   columnId?: string;
   assigneeIds?: string[];
   priority?: TaskPriority;
+  type?: TaskType;
   startDate?: string;
   dueDate?: string;
   storyPoints?: number;
@@ -143,6 +144,25 @@ export function TaskDetailsSidebar({
                 <SelectItem value="LOW">Low</SelectItem>
                 <SelectItem value="MEDIUM">Medium</SelectItem>
                 <SelectItem value="HIGH">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">Type</Label>
+            <Select<string>
+              value={task.type}
+              onValueChange={(value) => value && onChange({ type: value as TaskType })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(TYPE_LABEL) as TaskType[]).map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {TYPE_LABEL[value]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

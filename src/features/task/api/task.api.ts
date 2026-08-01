@@ -4,6 +4,7 @@ import type {
   TaskActivityEntry,
   TaskListScope,
   TaskPriority,
+  TaskType,
   TaskWatcher,
 } from "../types/task.types";
 
@@ -35,6 +36,7 @@ interface CreateTaskRequest {
   title: string;
   description?: string;
   priority?: TaskPriority;
+  type?: TaskType;
   startDate?: string;
   dueDate?: string;
   storyPoints?: number;
@@ -48,6 +50,7 @@ interface UpdateTaskRequest {
   title?: string;
   description?: string;
   priority?: TaskPriority;
+  type?: TaskType;
   startDate?: string;
   dueDate?: string;
   columnId?: string;
