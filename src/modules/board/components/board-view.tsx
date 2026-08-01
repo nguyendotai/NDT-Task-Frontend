@@ -24,12 +24,16 @@ import {
 import {
   useListTasksByWorkspaceQuery,
   useUpdateTaskMutation,
+  filterTasks,
+  EMPTY_TASK_FILTER_STATE,
   type Task,
+  type TaskFilterState,
 } from "@/features/task";
 import { useListSprintsQuery } from "@/features/sprint";
 import { AddColumnButton } from "./add-column-button";
 import { BoardColumn } from "./board-column";
 import { BoardTaskCard } from "./board-task-card";
+import { TaskFilterBar } from "./task-filter-bar";
 import { TaskFormDialog } from "./task-form-dialog";
 import { TaskDetailModal } from "./task-detail-modal";
 
@@ -61,6 +65,8 @@ export function BoardView({
   const [activeColumn, setActiveColumn] = useState<WorkspaceColumn | null>(null);
   const [createColumnId, setCreateColumnId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [taskFilters, setTaskFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTER_STATE);
 
   const columns = useMemo(
     () => (board?.columns ?? []).slice().sort((a, b) => a.order - b.order),
@@ -68,16 +74,21 @@ export function BoardView({
   );
   const columnIds = useMemo(() => columns.map((column) => column.id), [columns]);
 
+  const filteredTasks = useMemo(
+    () => filterTasks(tasks ?? [], searchTerm, taskFilters),
+    [tasks, searchTerm, taskFilters],
+  );
+
   const tasksByColumn = useMemo(() => {
     const map = new Map<string, Task[]>();
-    for (const task of tasks ?? []) {
+    for (const task of filteredTasks) {
       const list = map.get(task.columnId) ?? [];
       list.push(task);
       map.set(task.columnId, list);
     }
     for (const list of map.values()) list.sort((a, b) => a.order - b.order);
     return map;
-  }, [tasks]);
+  }, [filteredTasks]);
 
   function handleDragStart(event: DragStartEvent) {
     const data = event.active.data.current;
@@ -163,6 +174,17 @@ export function BoardView({
 
   return (
     <>
+      <div className="mb-3">
+        <TaskFilterBar
+          searchTerm={searchTerm}
+          onSearchTermChange={setSearchTerm}
+          filters={taskFilters}
+          onFiltersChange={setTaskFilters}
+          columns={columns}
+          members={members ?? []}
+        />
+      </div>
+
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex gap-3 overflow-x-auto pb-2">
           <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>

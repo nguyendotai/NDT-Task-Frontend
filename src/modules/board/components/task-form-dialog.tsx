@@ -26,6 +26,7 @@ import type { WorkspaceColumn } from "@/features/workspace";
 import { useListMembersQuery } from "@/features/workspace";
 import {
   taskFormSchema,
+  TYPE_LABEL,
   type Task,
   type TaskFormValues,
   useCreateTaskMutation,
@@ -71,6 +72,7 @@ export function TaskFormDialog({
       title: "",
       description: "",
       priority: "MEDIUM",
+      type: "TASK",
       startDate: "",
       dueDate: "",
     },
@@ -83,6 +85,7 @@ export function TaskFormDialog({
       title: task?.title ?? "",
       description: task?.description ?? "",
       priority: task?.priority ?? "MEDIUM",
+      type: task?.type ?? "TASK",
       startDate: task?.startDate?.slice(0, 10) ?? "",
       dueDate: task?.dueDate?.slice(0, 10) ?? "",
     });
@@ -103,6 +106,7 @@ export function TaskFormDialog({
           title: values.title,
           description: values.description || undefined,
           priority: values.priority,
+          type: values.type,
           startDate: values.startDate || undefined,
           dueDate: values.dueDate || undefined,
           assigneeIds,
@@ -115,6 +119,7 @@ export function TaskFormDialog({
           title: values.title,
           description: values.description || undefined,
           priority: values.priority,
+          type: values.type,
           startDate: values.startDate || undefined,
           dueDate: values.dueDate || undefined,
         }).unwrap();
@@ -160,29 +165,29 @@ export function TaskFormDialog({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="task-column">Column</Label>
-                <Controller
-                  control={control}
-                  name="columnId"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="task-column" className="w-full">
-                        <SelectValue placeholder="Select column" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {columns.map((column) => (
-                          <SelectItem key={column.id} value={column.id}>
-                            {column.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-column">Column</Label>
+              <Controller
+                control={control}
+                name="columnId"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="task-column" className="w-full">
+                      <SelectValue placeholder="Select column" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {columns.map((column) => (
+                        <SelectItem key={column.id} value={column.id}>
+                          {column.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
 
+            <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="task-priority">Priority</Label>
                 <Controller
@@ -197,6 +202,28 @@ export function TaskFormDialog({
                         <SelectItem value="LOW">Low</SelectItem>
                         <SelectItem value="MEDIUM">Medium</SelectItem>
                         <SelectItem value="HIGH">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="task-type">Type</Label>
+                <Controller
+                  control={control}
+                  name="type"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="task-type" className="w-full">
+                        <SelectValue placeholder="Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(Object.keys(TYPE_LABEL) as (keyof typeof TYPE_LABEL)[]).map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {TYPE_LABEL[value]}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
@@ -10,8 +11,9 @@ import {
   SearchTypeTabs,
   SearchFiltersPanel,
   ResultItem,
-  useSearchQuery,
+  useSearchGlobalQuery,
   EMPTY_TASK_FILTERS,
+  hasActiveTaskFilters,
 } from "@/features/search";
 import type { SearchEntityType, SearchResults, SearchTaskFilters } from "@/features/search";
 
@@ -63,12 +65,12 @@ const GROUP_TO_TYPE: Record<keyof SearchResults, SearchEntityType> = {
   columns: "column",
 };
 
-interface AdvancedSearchViewProps {
-  workspaceId: string;
+interface GlobalSearchViewProps {
   initialQuery: InitialQuery;
 }
 
-export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearchViewProps) {
+export function GlobalSearchView({ initialQuery }: GlobalSearchViewProps) {
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery.q ?? "");
   const [type, setType] = useState<SearchEntityType | undefined>(parseInitialType(initialQuery.type));
   const [filters, setFilters] = useState<SearchTaskFilters>({
@@ -83,6 +85,9 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
   });
   const [offset, setOffset] = useState(0);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
+  // search.md #6: q không bắt buộc — vẫn search khi có ít nhất 1 filter dù ô
+  // trống (browse/filter-only), chỉ thật sự bỏ qua khi cả 2 đều trống.
+  const isEmptySearch = debouncedQuery.length === 0 && !hasActiveTaskFilters(filters);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset trang khi đổi điều kiện tìm kiếm
@@ -90,9 +95,9 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
   }, [debouncedQuery, type, filters]);
 
   const limit = type ? PAGE_SIZE : PREVIEW_LIMIT;
-  const { data, isFetching } = useSearchQuery(
-    { workspaceId, q: debouncedQuery, type, limit, offset, ...filters },
-    { skip: debouncedQuery.length === 0 },
+  const { data, isFetching } = useSearchGlobalQuery(
+    { q: debouncedQuery, type, limit, offset, ...filters },
+    { skip: isEmptySearch },
   );
 
   const showFiltersPanel = type === undefined || type === "task";
@@ -100,7 +105,7 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 border-b border-border/60 p-4">
-        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href={`/workspaces/${workspaceId}`} />}>
+        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href="/dashboard" />}>
           <ArrowLeftIcon className="size-4" />
         </Button>
         <div className="relative max-w-xl flex-1">
@@ -108,7 +113,7 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tasks, comments, members..."
+            placeholder="Search across all your workspaces..."
             className="pl-9"
             autoFocus
           />
@@ -119,9 +124,9 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4">
-          {debouncedQuery.length === 0 ? (
+          {isEmptySearch ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Nhập từ khóa để tìm kiếm trong Workspace này.
+              Nhập từ khóa hoặc chọn bộ lọc bên phải để tìm kiếm trong tất cả Workspace của bạn.
             </p>
           ) : isFetching && offset === 0 ? (
             <div className="flex flex-col gap-2">
@@ -134,6 +139,7 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
               results={data}
               type={type}
               onPickType={(nextType) => setType(nextType)}
+              onSelectItem={(workspaceId) => router.push(`/workspaces/${workspaceId}`)}
             />
           )}
 
@@ -151,9 +157,7 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
           ) : null}
         </div>
 
-        {showFiltersPanel ? (
-          <SearchFiltersPanel workspaceId={workspaceId} filters={filters} onChange={setFilters} />
-        ) : null}
+        {showFiltersPanel ? <SearchFiltersPanel filters={filters} onChange={setFilters} /> : null}
       </div>
     </div>
   );
@@ -163,10 +167,12 @@ function SearchResultSections({
   results,
   type,
   onPickType,
+  onSelectItem,
 }: {
   results: SearchResults | undefined;
   type: SearchEntityType | undefined;
   onPickType: (type: SearchEntityType) => void;
+  onSelectItem: (workspaceId: string) => void;
 }) {
   if (!results) return null;
 
@@ -199,7 +205,7 @@ function SearchResultSections({
             </div>
             <div className="rounded-lg border border-border/60">
               {items.map((item) => (
-                <SectionRow key={item.id} item={item} />
+                <SectionRow key={item.id} item={item} onSelect={onSelectItem} />
               ))}
             </div>
           </div>
@@ -209,10 +215,23 @@ function SearchResultSections({
   );
 }
 
-function SectionRow({ item }: { item: SearchResults[keyof SearchResults][number] }) {
+function SectionRow({
+  item,
+  onSelect,
+}: {
+  item: SearchResults[keyof SearchResults][number];
+  onSelect: (workspaceId: string) => void;
+}) {
   const title =
     "title" in item ? item.title : "content" in item ? item.content : "fileName" in item ? item.fileName : "name" in item ? item.name : "";
   const subtitle =
     "status" in item ? item.status : "email" in item ? item.email : "mimeType" in item ? item.mimeType : "";
-  return <ResultItem title={title} subtitle={subtitle} onSelect={() => {}} />;
+  return (
+    <ResultItem
+      title={title}
+      subtitle={subtitle}
+      workspaceName={item.workspace.name}
+      onSelect={() => onSelect(item.workspace.id)}
+    />
+  );
 }

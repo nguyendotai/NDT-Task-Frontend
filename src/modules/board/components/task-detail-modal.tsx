@@ -60,7 +60,7 @@ export function TaskDetailModal({
   }, [task]);
 
   useEffect(() => {
-    if (task) recordRecentlyViewedTask(workspaceId, { id: task.id, title: task.title });
+    if (task) recordRecentlyViewedTask({ id: task.id, title: task.title, workspaceId });
   }, [task, workspaceId]);
 
   const memberNameById = useMemo(() => {
