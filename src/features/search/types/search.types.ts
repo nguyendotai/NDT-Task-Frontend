@@ -124,3 +124,9 @@ export interface SearchTaskFilters {
 }
 
 export const EMPTY_TASK_FILTERS: SearchTaskFilters = {};
+
+// search.md #6: q không bắt buộc — cho phép browse/filter-only. Dùng để
+// quyết định có gọi search hay không khi ô search đang trống.
+export function hasActiveTaskFilters(filters: SearchTaskFilters): boolean {
+  return Object.values(filters).some((value) => value !== undefined);
+}

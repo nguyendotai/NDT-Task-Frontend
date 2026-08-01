@@ -6,7 +6,7 @@ import { ArrowRightIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounce";
 import { useSearchGlobalQuery } from "../api/search.api";
-import { EMPTY_TASK_FILTERS } from "../types/search.types";
+import { EMPTY_TASK_FILTERS, hasActiveTaskFilters } from "../types/search.types";
 import type { SearchResults, SearchTaskFilters } from "../types/search.types";
 import { SearchFiltersPanel } from "./search-filters-panel";
 import { SearchResultGroups } from "./search-result-groups";
@@ -29,10 +29,13 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [taskFilters, setTaskFilters] = useState<SearchTaskFilters>(EMPTY_TASK_FILTERS);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
+  // search.md #6: q không bắt buộc — vẫn search khi có ít nhất 1 filter dù ô
+  // trống (browse/filter-only), chỉ thật sự bỏ qua khi cả 2 đều trống.
+  const isEmptySearch = debouncedQuery.length === 0 && !hasActiveTaskFilters(taskFilters);
 
   const { data, isFetching } = useSearchGlobalQuery(
     { q: debouncedQuery, limit: QUICK_SEARCH_LIMIT, ...taskFilters },
-    { skip: debouncedQuery.length === 0 },
+    { skip: isEmptySearch },
   );
 
   useEffect(() => {
@@ -90,7 +93,7 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
         <div className="absolute top-full left-0 z-50 mt-2 w-[640px] max-w-[92vw] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md">
           <div className="flex max-h-96">
             <div className="flex-1 overflow-y-auto p-1">
-              {debouncedQuery.length === 0 ? (
+              {isEmptySearch ? (
                 <SearchRecentPanel workspaceId={workspaceId} onSelect={closeAndReset} />
               ) : isFetching ? (
                 <div className="flex flex-col gap-2 p-2">
@@ -100,7 +103,9 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
                 </div>
               ) : !hasResults ? (
                 <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  No results found for &ldquo;{debouncedQuery}&rdquo;.
+                  {debouncedQuery.length > 0
+                    ? <>No results found for &ldquo;{debouncedQuery}&rdquo;.</>
+                    : "No results match the selected filters."}
                 </p>
               ) : (
                 <SearchResultGroups

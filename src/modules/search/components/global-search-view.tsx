@@ -13,6 +13,7 @@ import {
   ResultItem,
   useSearchGlobalQuery,
   EMPTY_TASK_FILTERS,
+  hasActiveTaskFilters,
 } from "@/features/search";
 import type { SearchEntityType, SearchResults, SearchTaskFilters } from "@/features/search";
 
@@ -84,6 +85,9 @@ export function GlobalSearchView({ initialQuery }: GlobalSearchViewProps) {
   });
   const [offset, setOffset] = useState(0);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
+  // search.md #6: q không bắt buộc — vẫn search khi có ít nhất 1 filter dù ô
+  // trống (browse/filter-only), chỉ thật sự bỏ qua khi cả 2 đều trống.
+  const isEmptySearch = debouncedQuery.length === 0 && !hasActiveTaskFilters(filters);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset trang khi đổi điều kiện tìm kiếm
@@ -93,7 +97,7 @@ export function GlobalSearchView({ initialQuery }: GlobalSearchViewProps) {
   const limit = type ? PAGE_SIZE : PREVIEW_LIMIT;
   const { data, isFetching } = useSearchGlobalQuery(
     { q: debouncedQuery, type, limit, offset, ...filters },
-    { skip: debouncedQuery.length === 0 },
+    { skip: isEmptySearch },
   );
 
   const showFiltersPanel = type === undefined || type === "task";
@@ -120,9 +124,9 @@ export function GlobalSearchView({ initialQuery }: GlobalSearchViewProps) {
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4">
-          {debouncedQuery.length === 0 ? (
+          {isEmptySearch ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              Nhập từ khóa để tìm kiếm trong tất cả Workspace của bạn.
+              Nhập từ khóa hoặc chọn bộ lọc bên phải để tìm kiếm trong tất cả Workspace của bạn.
             </p>
           ) : isFetching && offset === 0 ? (
             <div className="flex flex-col gap-2">

@@ -5,7 +5,7 @@ export { SearchResultGroups, ResultItem } from "./components/search-result-group
 export { useSearchQuery, useSearchGlobalQuery, useListSearchLabelsQuery } from "./api/search.api";
 export { recordRecentlyViewedTask, useRecentlyViewedTasks } from "./hooks/use-recently-viewed-tasks";
 export { buildGlobalSearchUrl } from "./utils/build-search-url";
-export { EMPTY_TASK_FILTERS } from "./types/search.types";
+export { EMPTY_TASK_FILTERS, hasActiveTaskFilters } from "./types/search.types";
 export type {
   SearchEntityType,
   SearchParams,
