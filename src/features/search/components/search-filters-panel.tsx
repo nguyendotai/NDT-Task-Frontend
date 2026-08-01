@@ -22,16 +22,19 @@ const NO_LABEL_VALUE = "__all__";
 const NO_SPRINT_VALUE = "__all__";
 
 interface SearchFiltersPanelProps {
-  workspaceId: string;
+  // Không có workspaceId (chế độ Global Search, xuyên nhiều Workspace) — ẩn
+  // Assignee/Sprint/Label vì các mục này cần 1 danh sách theo đúng 1
+  // Workspace cụ thể mới có ý nghĩa.
+  workspaceId?: string;
   filters: SearchTaskFilters;
   onChange: (filters: SearchTaskFilters) => void;
 }
 
 export function SearchFiltersPanel({ workspaceId, filters, onChange }: SearchFiltersPanelProps) {
   const currentUser = useAppSelector(selectCurrentUser);
-  const { data: members } = useListMembersQuery(workspaceId);
-  const { data: labels } = useListSearchLabelsQuery(workspaceId);
-  const { data: sprints } = useListSprintsQuery(workspaceId);
+  const { data: members } = useListMembersQuery(workspaceId ?? "", { skip: !workspaceId });
+  const { data: labels } = useListSearchLabelsQuery(workspaceId ?? "", { skip: !workspaceId });
+  const { data: sprints } = useListSprintsQuery(workspaceId ?? "", { skip: !workspaceId });
   const [activePreset, setActivePreset] = useState<UpdatedPresetKey>("any");
 
   const toggleAssignee = (userId: string) => {
@@ -81,7 +84,7 @@ export function SearchFiltersPanel({ workspaceId, filters, onChange }: SearchFil
         </div>
       </div>
 
-      {sprints && sprints.length > 0 ? (
+      {workspaceId && sprints && sprints.length > 0 ? (
         <div>
           <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             Sprint
@@ -107,29 +110,31 @@ export function SearchFiltersPanel({ workspaceId, filters, onChange }: SearchFil
         </div>
       ) : null}
 
-      <div>
-        <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Assignee
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {members?.map((member) => (
-            <button
-              key={member.id}
-              type="button"
-              title={member.user.name}
-              onClick={() => toggleAssignee(member.user.id)}
-              className={cn(
-                "flex size-7 items-center justify-center rounded-full text-xs font-medium ring-2 ring-offset-1 ring-offset-background transition-all",
-                filters.assigneeId === member.user.id
-                  ? "bg-primary text-primary-foreground ring-primary"
-                  : "bg-secondary text-secondary-foreground ring-transparent hover:ring-border",
-              )}
-            >
-              {getInitials(member.user.name)}
-            </button>
-          ))}
+      {workspaceId ? (
+        <div>
+          <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Assignee
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {members?.map((member) => (
+              <button
+                key={member.id}
+                type="button"
+                title={member.user.name}
+                onClick={() => toggleAssignee(member.user.id)}
+                className={cn(
+                  "flex size-7 items-center justify-center rounded-full text-xs font-medium ring-2 ring-offset-1 ring-offset-background transition-all",
+                  filters.assigneeId === member.user.id
+                    ? "bg-primary text-primary-foreground ring-primary"
+                    : "bg-secondary text-secondary-foreground ring-transparent hover:ring-border",
+                )}
+              >
+                {getInitials(member.user.name)}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div>
         <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
@@ -172,35 +177,37 @@ export function SearchFiltersPanel({ workspaceId, filters, onChange }: SearchFil
         </div>
       </div>
 
-      <div>
-        <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          Label
-        </p>
-        <Select
-          value={filters.label ?? NO_LABEL_VALUE}
-          onValueChange={(value) =>
-            onChange({ ...filters, label: !value || value === NO_LABEL_VALUE ? undefined : value })
-          }
-        >
-          <SelectTrigger size="sm" className="w-full">
-            <SelectValue placeholder="Any label" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NO_LABEL_VALUE}>Any label</SelectItem>
-            {labels?.map((label) => (
-              <SelectItem key={label.name} value={label.name}>
-                <span className="flex items-center gap-1.5">
-                  <span
-                    className="size-2 rounded-full"
-                    style={{ backgroundColor: label.color }}
-                  />
-                  {label.name}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {workspaceId ? (
+        <div>
+          <p className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Label
+          </p>
+          <Select
+            value={filters.label ?? NO_LABEL_VALUE}
+            onValueChange={(value) =>
+              onChange({ ...filters, label: !value || value === NO_LABEL_VALUE ? undefined : value })
+            }
+          >
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue placeholder="Any label" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_LABEL_VALUE}>Any label</SelectItem>
+              {labels?.map((label) => (
+                <SelectItem key={label.name} value={label.name}>
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: label.color }}
+                    />
+                    {label.name}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
     </div>
   );
 }

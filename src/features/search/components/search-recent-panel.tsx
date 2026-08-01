@@ -8,12 +8,12 @@ import { useRecentlyViewedTasks } from "../hooks/use-recently-viewed-tasks";
 const MAX_RECENT_WORKSPACES = 5;
 
 interface SearchRecentPanelProps {
-  workspaceId: string;
+  workspaceId?: string;
   onSelect: () => void;
 }
 
 export function SearchRecentPanel({ workspaceId, onSelect }: SearchRecentPanelProps) {
-  const recentTasks = useRecentlyViewedTasks(workspaceId);
+  const recentTasks = useRecentlyViewedTasks();
   const { data: workspaces } = useListMyWorkspacesQuery();
   const recentWorkspaces = (workspaces ?? [])
     .filter((workspace) => workspace.id !== workspaceId)
@@ -38,7 +38,7 @@ export function SearchRecentPanel({ workspaceId, onSelect }: SearchRecentPanelPr
           {recentTasks.map((task) => (
             <Link
               key={task.id}
-              href={`/workspaces/${workspaceId}`}
+              href={`/workspaces/${task.workspaceId}`}
               onClick={onSelect}
               className="block truncate rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent"
             >

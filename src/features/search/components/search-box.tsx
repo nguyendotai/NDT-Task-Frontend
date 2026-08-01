@@ -5,17 +5,20 @@ import { useRouter } from "next/navigation";
 import { ArrowRightIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { useDebouncedValue } from "@/shared/hooks/use-debounce";
-import { useSearchQuery } from "../api/search.api";
+import { useSearchGlobalQuery } from "../api/search.api";
 import { EMPTY_TASK_FILTERS } from "../types/search.types";
 import type { SearchResults, SearchTaskFilters } from "../types/search.types";
 import { SearchFiltersPanel } from "./search-filters-panel";
 import { SearchResultGroups } from "./search-result-groups";
 import { SearchRecentPanel } from "./search-recent-panel";
-import { buildAdvancedSearchUrl } from "../utils/build-search-url";
+import { buildGlobalSearchUrl } from "../utils/build-search-url";
 
 const QUICK_SEARCH_LIMIT = 5;
 
 interface SearchBoxProps {
+  // Chỉ dùng để quyết định có hiện Assignee/Sprint/Label (cần đúng 1
+  // Workspace mới có ý nghĩa) hay không — bản thân ô search luôn hoạt động
+  // ở bất cứ đâu, tìm xuyên suốt tất cả Workspace của user (Global Search).
   workspaceId?: string;
 }
 
@@ -27,14 +30,9 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
   const [taskFilters, setTaskFilters] = useState<SearchTaskFilters>(EMPTY_TASK_FILTERS);
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
 
-  const { data, isFetching } = useSearchQuery(
-    {
-      workspaceId: workspaceId ?? "",
-      q: debouncedQuery,
-      limit: QUICK_SEARCH_LIMIT,
-      ...taskFilters,
-    },
-    { skip: !workspaceId || debouncedQuery.length === 0 },
+  const { data, isFetching } = useSearchGlobalQuery(
+    { q: debouncedQuery, limit: QUICK_SEARCH_LIMIT, ...taskFilters },
+    { skip: debouncedQuery.length === 0 },
   );
 
   useEffect(() => {
@@ -52,15 +50,13 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
     setQuery("");
   };
 
-  const goToWorkspace = () => {
-    if (!workspaceId) return;
-    router.push(`/workspaces/${workspaceId}`);
+  const goToResultWorkspace = (targetWorkspaceId: string) => {
+    router.push(`/workspaces/${targetWorkspaceId}`);
     closeAndReset();
   };
 
-  const goToAdvancedSearch = () => {
-    if (!workspaceId) return;
-    router.push(buildAdvancedSearchUrl(workspaceId, debouncedQuery, undefined, taskFilters));
+  const goToGlobalSearch = () => {
+    router.push(buildGlobalSearchUrl(debouncedQuery, taskFilters));
     closeAndReset();
   };
 
@@ -78,7 +74,6 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
       <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={query}
-        disabled={!workspaceId}
         onChange={(event) => setQuery(event.target.value)}
         onFocus={() => setIsOpen(true)}
         onKeyDown={(event) => {
@@ -87,11 +82,11 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
             event.currentTarget.blur();
           }
         }}
-        placeholder={workspaceId ? "Search tasks, comments, members..." : "Open a workspace to search"}
+        placeholder="Search across all your workspaces..."
         className="pl-9"
       />
 
-      {isOpen && workspaceId ? (
+      {isOpen ? (
         <div className="absolute top-full left-0 z-50 mt-2 w-[640px] max-w-[92vw] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md">
           <div className="flex max-h-96">
             <div className="flex-1 overflow-y-auto p-1">
@@ -111,7 +106,7 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
                 <SearchResultGroups
                   results={data as SearchResults}
                   activeType={undefined}
-                  onSelect={goToWorkspace}
+                  onSelect={(workspace) => goToResultWorkspace(workspace.id)}
                 />
               )}
             </div>
@@ -120,7 +115,7 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
 
           <button
             type="button"
-            onClick={goToAdvancedSearch}
+            onClick={goToGlobalSearch}
             className="flex w-full items-center justify-between border-t border-border/60 px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
           >
             <span className="flex items-center gap-2">

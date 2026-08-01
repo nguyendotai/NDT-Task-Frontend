@@ -9,6 +9,15 @@ export const SEARCH_ENTITY_TYPES = [
 
 export type SearchEntityType = (typeof SEARCH_ENTITY_TYPES)[number];
 
+// Chỉ có ý nghĩa phân biệt ở Global Search (nhiều Workspace) — search theo 1
+// Workspace vẫn trả field này nhưng luôn chỉ 1 giá trị cố định.
+export interface WorkspaceRef {
+  id: string;
+  name: string;
+  avatarEmoji: string;
+  avatarColor: string;
+}
+
 export interface TaskSearchResult {
   id: string;
   title: string;
@@ -20,6 +29,7 @@ export interface TaskSearchResult {
   dueDate: string | null;
   createdAt: string;
   updatedAt: string;
+  workspace: WorkspaceRef;
 }
 
 export interface CommentSearchResult {
@@ -28,6 +38,7 @@ export interface CommentSearchResult {
   authorId: string;
   content: string;
   createdAt: string;
+  workspace: WorkspaceRef;
 }
 
 export interface AttachmentSearchResult {
@@ -36,6 +47,7 @@ export interface AttachmentSearchResult {
   fileName: string;
   mimeType: string;
   createdAt: string;
+  workspace: WorkspaceRef;
 }
 
 export interface MemberSearchResult {
@@ -44,6 +56,7 @@ export interface MemberSearchResult {
   name: string;
   email: string;
   role: string;
+  workspace: WorkspaceRef;
 }
 
 export interface SprintSearchResult {
@@ -52,12 +65,14 @@ export interface SprintSearchResult {
   status: string;
   startDate: string;
   endDate: string;
+  workspace: WorkspaceRef;
 }
 
 export interface ColumnSearchResult {
   id: string;
   name: string;
   boardId: string;
+  workspace: WorkspaceRef;
 }
 
 export interface SearchResults {
