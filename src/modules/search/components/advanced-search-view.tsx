@@ -100,7 +100,7 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 border-b border-border/60 p-4">
-        <Button variant="ghost" size="icon" render={<Link href={`/workspaces/${workspaceId}`} />}>
+        <Button variant="ghost" size="icon" nativeButton={false} render={<Link href={`/workspaces/${workspaceId}`} />}>
           <ArrowLeftIcon className="size-4" />
         </Button>
         <div className="relative max-w-xl flex-1">

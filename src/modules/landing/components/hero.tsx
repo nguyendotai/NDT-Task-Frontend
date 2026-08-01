@@ -41,6 +41,7 @@ export function Hero() {
           <Button
             size="lg"
             variant="outline"
+            nativeButton={false}
             render={<a href="#screenshots" />}
             className="h-11 gap-2 px-6"
           >
