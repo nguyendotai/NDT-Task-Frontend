@@ -52,6 +52,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [editSprint, setEditSprint] = useState<Sprint | null>(null);
   const [isCreateTaskOpen, setCreateTaskOpen] = useState(false);
+  const [isCreateActiveSprintTaskOpen, setCreateActiveSprintTaskOpen] = useState(false);
   const [activeDragTask, setActiveDragTask] = useState<Task | null>(null);
 
   const currentMember = useMemo(
@@ -177,14 +178,26 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
                 </p>
               </div>
               {canManage ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleComplete(activeSprint.id)}
-                >
-                  Complete sprint
-                </Button>
+                <div className="flex shrink-0 gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setCreateActiveSprintTaskOpen(true)}
+                  >
+                    <PlusIcon className="size-3.5" />
+                    Add task
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleComplete(activeSprint.id)}
+                  >
+                    Complete sprint
+                  </Button>
+                </div>
               ) : null}
             </div>
             <div className="mt-4">
@@ -358,6 +371,15 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
         open={isCreateTaskOpen}
         onOpenChange={setCreateTaskOpen}
       />
+      {activeSprint ? (
+        <TaskFormDialog
+          workspaceId={workspaceId}
+          columns={columns}
+          open={isCreateActiveSprintTaskOpen}
+          onOpenChange={setCreateActiveSprintTaskOpen}
+          sprintIdToAssign={activeSprint.id}
+        />
+      ) : null}
     </div>
   );
 }

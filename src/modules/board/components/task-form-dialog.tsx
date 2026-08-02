@@ -24,6 +24,7 @@ import {
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import type { WorkspaceColumn } from "@/features/workspace";
 import { useListMembersQuery } from "@/features/workspace";
+import { useAddSprintTaskMutation } from "@/features/sprint";
 import {
   taskFormSchema,
   TYPE_LABEL,
@@ -41,6 +42,10 @@ interface TaskFormDialogProps {
   onOpenChange: (open: boolean) => void;
   task?: Task;
   defaultColumnId?: string;
+  // sprint.md #5.6: Sprint Planned hoặc Active đều thêm được Task — khi có
+  // giá trị này (chỉ áp dụng lúc tạo mới), Task vừa tạo được add luôn vào
+  // đúng Sprint đó thay vì rơi vào Product Backlog.
+  sprintIdToAssign?: string;
 }
 
 export function TaskFormDialog({
@@ -50,6 +55,7 @@ export function TaskFormDialog({
   onOpenChange,
   task,
   defaultColumnId,
+  sprintIdToAssign,
 }: TaskFormDialogProps) {
   const isEdit = !!task;
   const [formError, setFormError] = useState<string | null>(null);
@@ -57,7 +63,8 @@ export function TaskFormDialog({
   const { data: members } = useListMembersQuery(workspaceId, { skip: !open });
   const [createTask, { isLoading: isCreating }] = useCreateTaskMutation();
   const [updateTask, { isLoading: isUpdating }] = useUpdateTaskMutation();
-  const isLoading = isCreating || isUpdating;
+  const [addSprintTask, { isLoading: isAssigningSprint }] = useAddSprintTaskMutation();
+  const isLoading = isCreating || isUpdating || isAssigningSprint;
 
   const {
     register,
@@ -125,6 +132,9 @@ export function TaskFormDialog({
         }).unwrap();
         if (assigneeIds.length > 0) {
           await updateTask({ id: created.id, workspaceId, assigneeIds }).unwrap();
+        }
+        if (sprintIdToAssign) {
+          await addSprintTask({ sprintId: sprintIdToAssign, taskId: created.id }).unwrap();
         }
       }
       onOpenChange(false);
