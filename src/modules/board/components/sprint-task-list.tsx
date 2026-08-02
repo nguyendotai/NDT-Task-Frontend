@@ -45,7 +45,13 @@ function DraggableTaskRow({
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform) }}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        // Không transition khi đang kéo (theo pointer tức thời, tránh lag) —
+        // chỉ ease lúc thả/hủy để trở về vị trí gốc mượt như Board Kanban
+        // (useSortable ở đó tự có transition, useDraggable thuần thì không).
+        transition: isDragging ? undefined : "transform 200ms ease",
+      }}
       className={
         "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3 py-2 transition-opacity " +
         (isDragging ? "opacity-40" : "opacity-100")
