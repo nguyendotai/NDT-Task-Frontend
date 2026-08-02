@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { getInitials } from "@/shared/utils/initials";
+import { UserAvatar } from "@/features/auth";
 import type { WorkspaceMember } from "@/features/workspace";
 
 export function AssigneeMultiSelect({
@@ -53,12 +53,12 @@ export function AssigneeMultiSelect({
               ) : (
                 <span className="flex -space-x-2">
                   {selectedMembers.slice(0, 3).map((member) => (
-                    <span
-                      key={member.user.id}
-                      title={member.user.name}
-                      className="flex size-6 items-center justify-center rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-secondary-foreground"
-                    >
-                      {getInitials(member.user.name)}
+                    <span key={member.user.id} title={member.user.name}>
+                      <UserAvatar
+                        name={member.user.name}
+                        avatarUrl={member.user.avatarUrl ?? null}
+                        className="size-6 border-2 border-card text-[10px]"
+                      />
                     </span>
                   ))}
                   {selectedMembers.length > 3 ? (
@@ -80,12 +80,12 @@ export function AssigneeMultiSelect({
               ) : (
                 <span className="flex -space-x-2">
                   {selectedMembers.slice(0, 4).map((member) => (
-                    <span
-                      key={member.user.id}
-                      title={member.user.name}
-                      className="flex size-6 items-center justify-center rounded-full border-2 border-card bg-secondary text-[10px] font-semibold text-secondary-foreground"
-                    >
-                      {getInitials(member.user.name)}
+                    <span key={member.user.id} title={member.user.name}>
+                      <UserAvatar
+                        name={member.user.name}
+                        avatarUrl={member.user.avatarUrl ?? null}
+                        className="size-6 border-2 border-card text-[10px]"
+                      />
                     </span>
                   ))}
                   {selectedMembers.length > 4 ? (

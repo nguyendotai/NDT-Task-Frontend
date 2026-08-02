@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
+import { getInitials } from "@/shared/utils/initials";
 import { selectCurrentUser, clearCredentials } from "../store/auth.slice";
 import { useLogoutMutation } from "../api/auth.api";
 
@@ -38,7 +39,7 @@ export function UserAvatar({
     <span
       className={`${className} flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-semibold text-white`}
     >
-      {name.charAt(0).toUpperCase()}
+      {getInitials(name)}
     </span>
   );
 }
