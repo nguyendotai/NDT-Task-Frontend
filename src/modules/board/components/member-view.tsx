@@ -11,9 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
-import { selectCurrentUser } from "@/features/auth";
+import { selectCurrentUser, UserAvatar } from "@/features/auth";
 import { usePresence } from "@/features/realtime";
-import { getInitials } from "@/shared/utils/initials";
 import {
   useListInvitationsQuery,
   useListMembersQuery,
@@ -82,8 +81,12 @@ export function MemberView({ workspaceId }: { workspaceId: string }) {
               key={member.id}
               className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3"
             >
-              <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
-                {getInitials(member.user.name)}
+              <span className="relative shrink-0">
+                <UserAvatar
+                  name={member.user.name}
+                  avatarUrl={member.user.avatarUrl ?? null}
+                  className="size-8"
+                />
                 {onlineUserIds.has(member.user.id) ? (
                   <span
                     title="Online"

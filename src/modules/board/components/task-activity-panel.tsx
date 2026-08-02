@@ -1,13 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
-import { selectCurrentUser } from "@/features/auth";
-import { getInitials } from "@/shared/utils/initials";
+import { selectCurrentUser, UserAvatar } from "@/features/auth";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import {
   useCreateCommentMutation,
@@ -75,6 +74,12 @@ export function TaskActivityPanel({
   const [editDraft, setEditDraft] = useState("");
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const memberAvatarUrlById = useMemo(() => {
+    const map = new Map<string, string | null>();
+    for (const member of members) map.set(member.user.id, member.user.avatarUrl ?? null);
+    return map;
+  }, [members]);
 
   const mentionCandidates =
     mentionQuery === null
@@ -166,9 +171,11 @@ export function TaskActivityPanel({
 
         <TabsContent value="comments" className="mt-3 flex flex-col gap-3">
           <div className="flex gap-2">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
-              {getInitials(currentUser?.name ?? "?")}
-            </span>
+            <UserAvatar
+              name={currentUser?.name ?? "?"}
+              avatarUrl={currentUser?.avatarUrl ?? null}
+              className="size-8 shrink-0"
+            />
             <div className="relative flex flex-1 flex-col gap-2">
               <Textarea
                 ref={textareaRef}
@@ -232,9 +239,11 @@ export function TaskActivityPanel({
                 const canModify = comment.authorId === currentUser?.id;
                 return (
                   <div key={comment.id} className="flex gap-2">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
-                      {getInitials(authorName)}
-                    </span>
+                    <UserAvatar
+                      name={authorName}
+                      avatarUrl={memberAvatarUrlById.get(comment.authorId) ?? null}
+                      className="size-8 shrink-0"
+                    />
                     <div className="min-w-0 flex-1 rounded-xl border border-border/60 bg-background/50 p-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-baseline gap-2">

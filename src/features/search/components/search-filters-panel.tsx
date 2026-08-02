@@ -123,13 +123,22 @@ export function SearchFiltersPanel({ workspaceId, filters, onChange }: SearchFil
                 title={member.user.name}
                 onClick={() => toggleAssignee(member.user.id)}
                 className={cn(
-                  "flex size-7 items-center justify-center rounded-full text-xs font-medium ring-2 ring-offset-1 ring-offset-background transition-all",
+                  "flex size-7 items-center justify-center overflow-hidden rounded-full text-xs font-medium ring-2 ring-offset-1 ring-offset-background transition-all",
                   filters.assigneeId === member.user.id
                     ? "bg-primary text-primary-foreground ring-primary"
                     : "bg-secondary text-secondary-foreground ring-transparent hover:ring-border",
                 )}
               >
-                {getInitials(member.user.name)}
+                {member.user.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- avatar Cloudinary domain chưa cấu hình next/image
+                  <img
+                    src={member.user.avatarUrl}
+                    alt={member.user.name}
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  getInitials(member.user.name)
+                )}
               </button>
             ))}
           </div>
