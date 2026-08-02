@@ -29,6 +29,7 @@ function getColumnDotClass(isDoneColumn: WorkspaceColumn["isDoneColumn"]) {
 export function BoardColumn({
   workspaceId,
   column,
+  columns,
   tasks,
   members,
   onAddTask,
@@ -36,6 +37,7 @@ export function BoardColumn({
 }: {
   workspaceId: string;
   column: WorkspaceColumn;
+  columns: WorkspaceColumn[];
   tasks: Task[];
   members: WorkspaceMember[];
   onAddTask: () => void;
@@ -118,6 +120,7 @@ export function BoardColumn({
               key={task.id}
               task={task}
               workspaceId={workspaceId}
+              columns={columns}
               members={members}
               onClick={() => onTaskClick(task)}
             />

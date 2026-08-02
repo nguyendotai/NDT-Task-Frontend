@@ -7,9 +7,12 @@ export const metadata: Metadata = {
 
 export default async function WorkspaceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ taskId?: string }>;
 }) {
   const { id } = await params;
-  return <WorkspaceDetailView workspaceId={id} />;
+  const { taskId } = await searchParams;
+  return <WorkspaceDetailView workspaceId={id} initialTaskId={taskId} />;
 }
