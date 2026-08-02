@@ -80,8 +80,8 @@ export function BoardTaskCard({
     setTimeout(() => setCopiedField(null), 1500);
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm(`Delete task "${task.title}"?`)) return;
+  const handleArchive = async () => {
+    if (!window.confirm(`Archive task "${task.title}"? You can restore it later from the Archive tab.`)) return;
     try {
       await deleteTask(task.id).unwrap();
     } catch (error) {
@@ -151,9 +151,7 @@ export function BoardTaskCard({
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onClick}>Edit labels</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={handleDelete}>
-              Delete
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleArchive}>Archive</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
