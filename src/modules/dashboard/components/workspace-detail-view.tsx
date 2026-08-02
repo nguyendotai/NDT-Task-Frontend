@@ -28,7 +28,7 @@ const TABS = [
 
 // sprint.md: Sprint chỉ tồn tại trong Workspace loại Scrum — tab riêng, chèn
 // ngay sau Board để gần với luồng làm việc chính.
-const SPRINT_TAB = { value: "sprint", label: "Sprint" } as const;
+const SPRINT_TAB = { value: "sprint", label: "Backlog" } as const;
 
 export function WorkspaceDetailView({
   workspaceId,
