@@ -30,7 +30,13 @@ const TABS = [
 // ngay sau Board để gần với luồng làm việc chính.
 const SPRINT_TAB = { value: "sprint", label: "Sprint" } as const;
 
-export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
+export function WorkspaceDetailView({
+  workspaceId,
+  initialTaskId,
+}: {
+  workspaceId: string;
+  initialTaskId?: string;
+}) {
   const {
     data: workspace,
     isLoading,
@@ -143,7 +149,7 @@ export function WorkspaceDetailView({ workspaceId }: { workspaceId: string }) {
           <TimelineView workspaceId={workspaceId} />
         </TabsContent>
         <TabsContent value="board" className="mt-4">
-          <BoardView workspaceId={workspaceId} isScrum={isScrum} />
+          <BoardView workspaceId={workspaceId} isScrum={isScrum} initialTaskId={initialTaskId} />
         </TabsContent>
         {isScrum ? (
           <TabsContent value="sprint" className="mt-4">

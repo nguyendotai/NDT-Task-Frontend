@@ -40,9 +40,11 @@ import { TaskDetailModal } from "./task-detail-modal";
 export function BoardView({
   workspaceId,
   isScrum = false,
+  initialTaskId,
 }: {
   workspaceId: string;
   isScrum?: boolean;
+  initialTaskId?: string;
 }) {
   const { data: board, isLoading: isBoardLoading } = useGetWorkspaceBoardQuery(workspaceId);
   // board.md #4: Scrum Board chỉ hiển thị Task thuộc Sprint đang Active —
@@ -64,7 +66,7 @@ export function BoardView({
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<WorkspaceColumn | null>(null);
   const [createColumnId, setCreateColumnId] = useState<string | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialTaskId ?? null);
   const [searchTerm, setSearchTerm] = useState("");
   const [taskFilters, setTaskFilters] = useState<TaskFilterState>(EMPTY_TASK_FILTER_STATE);
 
@@ -193,6 +195,7 @@ export function BoardView({
                 key={column.id}
                 workspaceId={workspaceId}
                 column={column}
+                columns={columns}
                 tasks={tasksByColumn.get(column.id) ?? []}
                 members={members ?? []}
                 onAddTask={() => setCreateColumnId(column.id)}
@@ -208,6 +211,7 @@ export function BoardView({
             <BoardTaskCard
               task={activeTask}
               workspaceId={workspaceId}
+              columns={columns}
               members={members ?? []}
               onClick={() => {}}
             />
