@@ -115,7 +115,6 @@ export function BoardTaskCard({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                nativeButton={false}
                 className={
                   "transition-opacity " +
                   (isMenuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100")
