@@ -14,7 +14,7 @@ export function DashboardSidebar() {
   return (
     <aside className="flex h-full w-64 shrink-0 flex-col gap-4 border-r border-border/60 bg-background/60 px-3 py-4">
       <Link href="/" className="flex items-center gap-2.5 px-2">
-        <Logo size={36} />
+        <Logo size={47} />
         <span className="leading-tight">
           <span className="block font-heading text-sm font-bold tracking-wide">NDT</span>
           <span className="block text-[10px] font-medium tracking-widest text-muted-foreground">

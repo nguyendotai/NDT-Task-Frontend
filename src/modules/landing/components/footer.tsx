@@ -24,7 +24,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold">
-              <Logo size={32} />
+              <Logo size={42} />
               NDT Task
             </Link>
             <p className="mt-3 text-sm text-muted-foreground">

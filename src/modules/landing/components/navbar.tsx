@@ -44,7 +44,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <Logo size={36} />
+          <Logo size={47} />
           <span className="leading-tight">
             <span className="block font-heading text-sm font-bold tracking-wide">NDT</span>
             <span className="block text-[10px] font-medium tracking-widest text-muted-foreground">
