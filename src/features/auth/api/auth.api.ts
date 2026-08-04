@@ -23,6 +23,10 @@ interface LoginResponse {
   user: AuthUser;
 }
 
+interface GoogleLoginRequest {
+  idToken: string;
+}
+
 interface RefreshResponse {
   accessToken: string;
 }
@@ -53,6 +57,9 @@ export const authApi = baseApi.injectEndpoints({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({ url: "/auth/login", method: "POST", body }),
     }),
+    googleLogin: builder.mutation<LoginResponse, GoogleLoginRequest>({
+      query: (body) => ({ url: "/auth/google", method: "POST", body }),
+    }),
     refresh: builder.mutation<RefreshResponse, void>({
       query: () => ({ url: "/auth/refresh", method: "POST" }),
     }),
@@ -77,6 +84,7 @@ export const authApi = baseApi.injectEndpoints({
 export const {
   useRegisterMutation,
   useLoginMutation,
+  useGoogleLoginMutation,
   useRefreshMutation,
   useLogoutMutation,
   useChangePasswordMutation,

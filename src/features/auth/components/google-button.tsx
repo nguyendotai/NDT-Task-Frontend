@@ -1,7 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { Button } from "@/shared/components/ui/button";
+import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
+import { getApiErrorMessage } from "@/shared/utils/api-error";
+import { useGoogleLoginMutation } from "../api/auth.api";
+import { setCredentials } from "../store/auth.slice";
+import { resolveSafeRedirect } from "../utils/safe-redirect";
+
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+          }) => void;
+          renderButton: (parent: HTMLElement, options: { type: "standard" }) => void;
+        };
+      };
+    };
+  }
+}
 
 function GoogleIcon() {
   return (
@@ -26,25 +53,64 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleButton() {
-  const [notice, setNotice] = useState(false);
+export function GoogleButton({ redirectTo }: { redirectTo?: string }) {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [googleLogin, { isLoading }] = useGoogleLoginMutation();
+  const [error, setError] = useState<string | null>(null);
+  const [isScriptReady, setScriptReady] = useState(false);
+  const hiddenButtonHostRef = useRef<HTMLDivElement>(null);
+
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  useEffect(() => {
+    if (!isScriptReady || !clientId || !window.google || !hiddenButtonHostRef.current) return;
+
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (response) => {
+        setError(null);
+        try {
+          const result = await googleLogin({ idToken: response.credential }).unwrap();
+          dispatch(setCredentials(result));
+          router.push(resolveSafeRedirect(redirectTo));
+        } catch (err) {
+          setError(getApiErrorMessage(err as never));
+        }
+      },
+    });
+    window.google.accounts.id.renderButton(hiddenButtonHostRef.current, { type: "standard" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ khởi tạo lại khi script/clientId đổi, tránh renderButton lặp lại mỗi lần dispatch/router đổi identity
+  }, [isScriptReady, clientId]);
+
+  const handleClick = () => {
+    // Proxy click sang nút Google thật (render ẩn) để giữ style riêng của app
+    // thay vì dùng nút mặc định của Google — theo đúng khuyến nghị của Google
+    // Identity Services để đảm bảo hoạt động ổn định trên mọi trình duyệt.
+    hiddenButtonHostRef.current?.querySelector<HTMLElement>('div[role="button"]')?.click();
+  };
+
+  if (!clientId) return null;
 
   return (
     <div>
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={() => setScriptReady(true)}
+      />
+      <div ref={hiddenButtonHostRef} className="hidden" />
       <Button
         type="button"
         variant="outline"
         className="h-11 w-full gap-2 text-base"
-        onClick={() => setNotice(true)}
+        disabled={!isScriptReady || isLoading}
+        onClick={handleClick}
       >
         <GoogleIcon />
-        Continue with Google
+        {isLoading ? "Đang đăng nhập..." : "Continue with Google"}
       </Button>
-      {notice ? (
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          Đăng nhập bằng Google đang được phát triển, vui lòng dùng email/mật khẩu.
-        </p>
-      ) : null}
+      {error ? <p className="mt-2 text-center text-xs text-destructive">{error}</p> : null}
     </div>
   );
 }

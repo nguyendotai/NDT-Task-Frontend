@@ -107,7 +107,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <GoogleButton />
+      <GoogleButton redirectTo={redirectTo} />
 
       <p className="mt-7 text-center text-base text-muted-foreground">
         Chưa có tài khoản?{" "}
