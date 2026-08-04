@@ -1,22 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ClockIcon,
-  LayoutDashboardIcon,
-  LayoutGridIcon,
-  MessageCircleIcon,
-  SparklesIcon,
-  StarIcon,
-} from "lucide-react";
+import { LayoutDashboardIcon, LayoutGridIcon, MessageCircleIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { WorkspaceNavList } from "./workspace-nav-list";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-  { label: "For you", href: "/dashboard", icon: SparklesIcon },
-  { label: "Recent", href: "/dashboard", icon: ClockIcon },
-  { label: "Starred", href: "/dashboard?tab=starred", icon: StarIcon },
 ];
 
 export function DashboardSidebar() {
