@@ -83,6 +83,34 @@ export const checklistApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { orderedChecklistIds },
       }),
+      // Cập nhật cache ngay theo thứ tự mới lúc thả (rollback nếu API lỗi) để
+      // tránh nháy về thứ tự cũ rồi mới bật lại đúng khi tag invalidate xong.
+      async onQueryStarted(
+        { taskId, orderedChecklistIds },
+        { dispatch, queryFulfilled },
+      ) {
+        const patchResult = dispatch(
+          checklistApi.util.updateQueryData(
+            "listChecklistItems",
+            taskId,
+            (draft) => {
+              const byId = new Map(draft.map((item) => [item.id, item]));
+              draft.splice(
+                0,
+                draft.length,
+                ...orderedChecklistIds
+                  .map((id) => byId.get(id))
+                  .filter((item): item is ChecklistItem => !!item),
+              );
+            },
+          ),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
       invalidatesTags: (_result, _error, { taskId }) => [
         { type: "Checklist", id: taskId },
       ],
