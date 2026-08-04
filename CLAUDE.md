@@ -79,7 +79,7 @@ Quy tắc: Card/Panel dùng `rounded-[var(--radius-lg)]` (≈ Tailwind `rounded-
 | `--chart-1..5` | `#93C5FD → #60A5FA → #3B82F6 → #8B5CF6 → #C4B5FD` | `#2563EB → #3B82F6 → #6D5CFB → #8B5CF6 → #A78BFA` |
 
 ### 6.4 Gradient & Effect
-- **Brand Gradient** (nhận diện xuyên suốt 2 theme): `linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)` — dùng cho: logo, nav item active, CTA button chính ("New task"), progress bar fill, từ khoá nhấn mạnh trong heading (`bg-clip-text text-transparent`).
+- **Brand Gradient** (nhận diện xuyên suốt 2 theme, khớp màu logo thật `public/logo.png`): `linear-gradient(135deg, #3B82F6 0%, #10B981 100%)` (xanh dương → xanh lá, Tailwind `from-blue-500 to-emerald-500`) — dùng cho: nav item active, CTA button chính ("New task"), progress bar fill, từ khoá nhấn mạnh trong heading (`bg-clip-text text-transparent`). Logo dùng ảnh thật (`shared/components/logo.tsx`), không còn icon+gradient-square giả lập.
 - **Glow** (chỉ Dark theme): `box-shadow: 0 0 24px rgba(59,130,246,.35)` quanh phần tử active/CTA/avatar-add-button.
 - **Glassmorphism** (chỉ Dark theme, cho Card/Panel): `background: rgba(22,26,45,.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,.08)`.
 - **Light theme thay Glow/Glass bằng Elevation**: `box-shadow: 0 4px 16px rgba(16,24,40,.06)`, hover tăng nhẹ `0 8px 24px rgba(16,24,40,.08)`.
@@ -100,4 +100,4 @@ Quy tắc: Card/Panel dùng `rounded-[var(--radius-lg)]` (≈ Tailwind `rounded-
 ### 6.7 Áp dụng
 - Mọi Card/Panel/Button mới bắt buộc dùng token ở trên qua Tailwind theme (`bg-card`, `text-muted-foreground`, `rounded-[var(--radius-lg)]`...). Cấm hardcode mã màu/bo góc tuỳ tiện trong Component.
 - Dark là theme mặc định (đúng ảnh reference); Light theme suy ra tương đương ở mục 6.3, giữ cùng Brand Gradient để nhất quán nhận diện.
-- Bảng màu ở mục 6.3 là **giá trị tham chiếu để implement** vào `:root`/`.dark` trong `src/app/globals.css` — chưa áp dụng vào code ở lần cập nhật tài liệu này.
+- Bảng màu ở mục 6.3 là **giá trị tham chiếu để implement** vào `:root`/`.dark` trong `src/app/globals.css` — phần nền/glassmorphism (`--background`/`--card`/`--sidebar`...) chưa áp dụng, còn dùng nền trắng/đen mặc định của shadcn/ui. Riêng `--primary`/`--ring`/`--sidebar-primary`/`--chart-1`/`--chart-2` **đã áp dụng thật** (blue-600/blue-500 theo Brand Gradient mục 6.4, khớp màu logo).

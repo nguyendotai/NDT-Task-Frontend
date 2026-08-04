@@ -20,7 +20,7 @@ export function DashboardHeader() {
         <Button
           nativeButton={false}
           render={<Link href="/workspaces/new" />}
-          className="gap-1.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+          className="gap-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:opacity-90"
         >
           <PlusIcon className="size-4" />
           Create Workspace

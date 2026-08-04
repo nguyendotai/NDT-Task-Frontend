@@ -71,7 +71,7 @@ export function DashboardMockup() {
               className={
                 "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium " +
                 (item.active
-                  ? "bg-gradient-to-r from-blue-500 to-violet-500 text-white"
+                  ? "bg-gradient-to-r from-blue-500 to-emerald-500 text-white"
                   : "text-muted-foreground")
               }
             >
@@ -114,7 +114,7 @@ export function DashboardMockup() {
                         >
                           {task.priority}
                         </span>
-                        <span className="size-4 rounded-full bg-gradient-to-br from-blue-500 to-violet-500" />
+                        <span className="size-4 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500" />
                       </div>
                     </div>
                   ))}

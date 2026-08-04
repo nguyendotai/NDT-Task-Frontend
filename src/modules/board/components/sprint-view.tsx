@@ -166,7 +166,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-medium text-foreground">{activeSprint.name}</p>
-                  <Badge className="border-transparent bg-gradient-to-r from-blue-500 to-violet-500 text-white">
+                  <Badge className="border-transparent bg-gradient-to-r from-blue-500 to-emerald-500 text-white">
                     Active
                   </Badge>
                 </div>

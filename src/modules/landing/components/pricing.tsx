@@ -78,7 +78,7 @@ export function Pricing() {
             )}
           >
             {plan.highlighted ? (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-violet-500 text-white">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-emerald-500 text-white">
                 Popular
               </Badge>
             ) : null}
@@ -106,7 +106,7 @@ export function Pricing() {
                 render={<Link href={plan.href} />}
                 className={cn(
                   "w-full",
-                  plan.highlighted && "bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90",
+                  plan.highlighted && "bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:opacity-90",
                 )}
                 variant={plan.highlighted ? "default" : "outline"}
               >

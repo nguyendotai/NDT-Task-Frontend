@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LayoutGridIcon, MenuIcon, XIcon } from "lucide-react";
+import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
@@ -43,9 +44,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white">
-            <LayoutGridIcon className="size-4.5" />
-          </span>
+          <Logo size={36} />
           <span className="leading-tight">
             <span className="block font-heading text-sm font-bold tracking-wide">NDT</span>
             <span className="block text-[10px] font-medium tracking-widest text-muted-foreground">
@@ -78,7 +77,7 @@ export function Navbar() {
               <Button
                 nativeButton={false}
                 render={<Link href="/register" />}
-                className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+                className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:opacity-90"
               >
                 Get Started
               </Button>
@@ -142,7 +141,7 @@ export function Navbar() {
                   <Button
                     nativeButton={false}
                     render={<Link href="/register" />}
-                    className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+                    className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:opacity-90"
                   >
                     Get Started
                   </Button>

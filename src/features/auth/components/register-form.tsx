@@ -130,7 +130,7 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-violet-500 text-base text-white hover:opacity-90"
+          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-emerald-500 text-base text-white hover:opacity-90"
         >
           {isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký"}
         </Button>
