@@ -66,7 +66,7 @@ export function ResetPasswordForm({ token }: { token?: string }) {
           Mật khẩu của bạn đã được cập nhật. Hãy đăng nhập lại bằng mật khẩu mới.
         </p>
         <Button
-          className="mt-7 h-11 bg-gradient-to-r from-blue-500 to-violet-500 text-base text-white hover:opacity-90"
+          className="mt-7 h-11 bg-gradient-to-r from-blue-500 to-emerald-500 text-base text-white hover:opacity-90"
           onClick={() => router.push("/login")}
         >
           Đến trang đăng nhập
@@ -118,7 +118,7 @@ export function ResetPasswordForm({ token }: { token?: string }) {
         <Button
           type="submit"
           disabled={isLoading}
-          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-violet-500 text-base text-white hover:opacity-90"
+          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-emerald-500 text-base text-white hover:opacity-90"
         >
           {isLoading ? "Đang cập nhật..." : "Đặt lại mật khẩu"}
         </Button>

@@ -7,7 +7,7 @@ export function ProductPreview() {
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
         <div>
-          <p className="text-sm font-semibold tracking-widest text-violet-500">PRODUCT PREVIEW</p>
+          <p className="text-sm font-semibold tracking-widest text-emerald-500">PRODUCT PREVIEW</p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             See workspaces, boards, task detail, comments, and members together.
           </h2>

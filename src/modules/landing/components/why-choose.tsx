@@ -54,7 +54,7 @@ export function WhyChoose() {
         <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {REASONS.map((reason) => (
             <div key={reason.title} className="flex gap-4">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/15 to-violet-500/15 text-blue-500">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/15 to-emerald-500/15 text-blue-500">
                 <reason.icon className="size-5" />
               </div>
               <div>

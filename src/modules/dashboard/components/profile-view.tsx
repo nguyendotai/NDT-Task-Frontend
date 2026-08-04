@@ -107,7 +107,7 @@ export function ProfileView() {
               aria-label="Change photo"
               disabled={isUploading}
               onClick={() => fileInputRef.current?.click()}
-              className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-sm disabled:opacity-50"
+              className="absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-sm disabled:opacity-50"
             >
               <CameraIcon className="size-3.5" />
             </button>

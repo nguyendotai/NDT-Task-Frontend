@@ -83,7 +83,7 @@ export function ForgotPasswordForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-violet-500 text-base text-white hover:opacity-90"
+          className="mt-2 h-11 bg-gradient-to-r from-blue-500 to-emerald-500 text-base text-white hover:opacity-90"
         >
           {isLoading ? "Đang gửi..." : "Gửi hướng dẫn"}
         </Button>

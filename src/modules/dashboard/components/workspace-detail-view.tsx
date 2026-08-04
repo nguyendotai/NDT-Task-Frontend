@@ -96,7 +96,7 @@ export function WorkspaceDetailView({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-heading text-2xl font-bold">{workspace.name}</h1>
-              <Badge className="border-transparent bg-gradient-to-r from-blue-500 to-violet-500 text-white">
+              <Badge className="border-transparent bg-gradient-to-r from-blue-500 to-emerald-500 text-white">
                 {workspace.type}
               </Badge>
               <Badge variant={workspace.visibility === "PUBLIC" ? "secondary" : "outline"}>

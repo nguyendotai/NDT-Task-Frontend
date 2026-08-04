@@ -31,7 +31,7 @@ export function RoleBasedAccess() {
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                   <div
                     style={{ width: `${role.value}%` }}
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500"
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500"
                   />
                 </div>
               </div>

@@ -27,7 +27,7 @@ export function Hero() {
           Plan, build, and ship software
           <br />
           from one{" "}
-          <span className="bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">
             premium workspace
           </span>
           .

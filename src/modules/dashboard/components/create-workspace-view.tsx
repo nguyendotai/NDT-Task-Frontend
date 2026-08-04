@@ -136,7 +136,7 @@ export function CreateWorkspaceView() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:opacity-90"
+          className="bg-gradient-to-r from-blue-500 to-emerald-500 text-white hover:opacity-90"
         >
           {isLoading ? "Creating..." : "Create Workspace"}
         </Button>
