@@ -129,3 +129,40 @@
     @apply font-sans;
   }
 }
+
+/* Docs tab: nội dung TipTap (ProseMirror) không có plugin typography, style
+   thủ công tối giản cho các node StarterKit đang dùng (docs-editor-panel). */
+.doc-editor-content .ProseMirror {
+  outline: none;
+  min-height: 12rem;
+}
+.doc-editor-content .ProseMirror h1 {
+  @apply mt-4 mb-2 text-2xl font-bold first:mt-0;
+}
+.doc-editor-content .ProseMirror h2 {
+  @apply mt-3 mb-2 text-xl font-bold first:mt-0;
+}
+.doc-editor-content .ProseMirror h3 {
+  @apply mt-3 mb-1.5 text-lg font-semibold first:mt-0;
+}
+.doc-editor-content .ProseMirror p {
+  @apply my-2 leading-relaxed;
+}
+.doc-editor-content .ProseMirror ul {
+  @apply my-2 list-disc pl-5;
+}
+.doc-editor-content .ProseMirror ol {
+  @apply my-2 list-decimal pl-5;
+}
+.doc-editor-content .ProseMirror blockquote {
+  @apply my-2 border-l-2 border-border pl-3 text-muted-foreground italic;
+}
+.doc-editor-content .ProseMirror code {
+  @apply rounded bg-muted px-1 py-0.5 font-mono text-xs;
+}
+.doc-editor-content .ProseMirror pre {
+  @apply my-2 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs;
+}
+.doc-editor-content .ProseMirror pre code {
+  @apply bg-transparent p-0;
+}

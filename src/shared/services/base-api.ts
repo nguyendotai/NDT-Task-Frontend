@@ -64,6 +64,7 @@ export const baseApi = createApi({
     "Label",
     "Watcher",
     "Notification",
+    "Doc",
   ],
   endpoints: () => ({}),
 });
