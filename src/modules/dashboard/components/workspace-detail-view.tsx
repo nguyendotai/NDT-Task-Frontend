@@ -166,7 +166,7 @@ export function WorkspaceDetailView({
           <MemberView workspaceId={workspaceId} />
         </TabsContent>
         <TabsContent value="docs" className="mt-4">
-          <DocsView />
+          <DocsView workspaceId={workspaceId} />
         </TabsContent>
       </Tabs>
     </div>

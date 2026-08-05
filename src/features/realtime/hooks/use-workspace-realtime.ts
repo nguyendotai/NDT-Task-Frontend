@@ -72,6 +72,23 @@ export function useWorkspaceRealtime(workspaceId: string | undefined): void {
       socket.on(event, handleBoardChange);
     }
 
+    // docs.md #10: doc.created/updated/deleted làm mới cả danh sách (tag theo
+    // workspaceId) lẫn Doc đang mở (tag theo docId) — không có collaborative
+    // editing theo ký tự, chỉ đồng bộ sau khi lưu.
+    const handleDocChange = (payload: { docId?: string }) => {
+      const tags: Parameters<typeof baseApi.util.invalidateTags>[0] = [
+        { type: "Doc", id: workspaceId },
+      ];
+      if (payload?.docId) {
+        tags.push({ type: "Doc", id: payload.docId });
+      }
+      dispatch(baseApi.util.invalidateTags(tags));
+    };
+    const DOC_EVENTS = ["doc.created", "doc.updated", "doc.deleted"] as const;
+    for (const event of DOC_EVENTS) {
+      socket.on(event, handleDocChange);
+    }
+
     const taskDetailHandlers = Object.entries(TASK_DETAIL_EVENT_TAGS).map(
       ([event, tagType]) => {
         const handler = (payload: { taskId?: string }) => {
@@ -91,6 +108,9 @@ export function useWorkspaceRealtime(workspaceId: string | undefined): void {
     return () => {
       for (const event of BOARD_SYNC_EVENTS) {
         socket.off(event, handleBoardChange);
+      }
+      for (const event of DOC_EVENTS) {
+        socket.off(event, handleDocChange);
       }
       for (const { event, handler } of taskDetailHandlers) {
         socket.off(event, handler);
