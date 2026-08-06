@@ -4,21 +4,15 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Logo } from "./logo";
 
-// Chỉ hiện đúng 1 lần cho mỗi tab (sessionStorage — mất khi đóng tab, không
-// phải mỗi lần chuyển trang trong cùng phiên).
-const SESSION_KEY = "ndt-task-intro-shown";
+// IntroSplash chỉ mount lại khi tải lại toàn trang (F5, mở tab mới) — Next.js
+// chuyển trang bằng Link không remount `app/providers.tsx` nên không cần
+// sessionStorage để chặn hiện lại giữa các lần điều hướng nội bộ.
 const DISPLAY_MS = 1800;
 
 export function IntroSplash() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- chỉ ẩn ngay nếu tab này đã xem intro trước đó, không tránh được vì sessionStorage chỉ đọc được phía client
-      setIsVisible(false);
-      return;
-    }
-    sessionStorage.setItem(SESSION_KEY, "1");
     const timer = setTimeout(() => setIsVisible(false), DISPLAY_MS);
     return () => clearTimeout(timer);
   }, []);
