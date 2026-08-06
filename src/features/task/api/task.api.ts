@@ -45,8 +45,12 @@ interface CreateTaskRequest {
 interface UpdateTaskRequest {
   id: string;
   // Chỉ dùng để patch optimistic cache của listTasksByWorkspace khi kéo thả
-  // trên Board — không gửi lên server.
+  // trên Board — không gửi lên server. sprintId phải khớp đúng key cache mà
+  // Board đang query (Workspace Scrum lọc theo Sprint Active nên query kèm
+  // sprintId — thiếu field này thì patch nhắm sai cache, kéo-thả không thấy
+  // cập nhật ngay mà phải đợi tag "Task" invalidate rồi refetch).
   workspaceId?: string;
+  sprintId?: string;
   title?: string;
   description?: string;
   priority?: TaskPriority;
@@ -105,19 +109,20 @@ export const taskApi = baseApi.injectEndpoints({
       invalidatesTags: ["Task"],
     }),
     updateTask: builder.mutation<Task, UpdateTaskRequest>({
-      query: ({ id, workspaceId, ...body }) => {
+      query: ({ id, workspaceId, sprintId, ...body }) => {
         void workspaceId;
+        void sprintId;
         return { url: `/tasks/${id}`, method: "PATCH", body };
       },
       async onQueryStarted(
-        { id, workspaceId, ...patch },
+        { id, workspaceId, sprintId, ...patch },
         { dispatch, queryFulfilled },
       ) {
         if (!workspaceId) return;
         const patchResult = dispatch(
           taskApi.util.updateQueryData(
             "listTasksByWorkspace",
-            { workspaceId },
+            { workspaceId, sprintId },
             (draft) => {
               const task = draft.find((item) => item.id === id);
               if (task) Object.assign(task, patch);

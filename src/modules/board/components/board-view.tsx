@@ -138,6 +138,7 @@ export function BoardView({
       updateTask({
         id: task.id,
         workspaceId,
+        sprintId: activeSprint?.id,
         columnId: destinationColumnId,
         order: destinationOrder,
       });

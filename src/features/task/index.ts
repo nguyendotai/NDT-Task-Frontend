@@ -1,3 +1,4 @@
+export { taskApi } from "./api/task.api";
 export {
   useListMyTasksQuery,
   useListTasksByWorkspaceQuery,

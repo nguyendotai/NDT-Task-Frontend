@@ -13,6 +13,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser } from "@/features/auth";
 import { useGetWorkspaceBoardQuery, useListMembersQuery } from "@/features/workspace";
@@ -24,7 +25,7 @@ import {
   useStartSprintMutation,
   type Sprint,
 } from "@/features/sprint";
-import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, type Task } from "@/features/task";
+import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, taskApi, type Task } from "@/features/task";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { SprintFormDialog } from "./sprint-form-dialog";
 import { SprintTaskList } from "./sprint-task-list";
@@ -39,6 +40,7 @@ function formatDate(value: string) {
 }
 
 export function SprintView({ workspaceId }: { workspaceId: string }) {
+  const dispatch = useAppDispatch();
   const currentUser = useAppSelector(selectCurrentUser);
   const { data: members } = useListMembersQuery(workspaceId);
   const { data: board } = useGetWorkspaceBoardQuery(workspaceId);
@@ -104,26 +106,49 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
       | undefined;
     if (!data) return;
 
+    const { task } = data;
     const sourceSprintId = data.sourceSprintId;
     const targetSprintId = String(over.id);
     if (sourceSprintId === targetSprintId) return;
+
+    // Patch cache ngay lúc thả (list nguồn/đích, kể cả "backlog" — không có
+    // API riêng cho backlog nên phải tự cập nhật tay) thay vì đợi API rồi để
+    // tag "Task" dùng chung kích hoạt refetch toàn bộ Active/Planned/Backlog
+    // cùng lúc — đó là nguyên nhân kéo-thả bị delay và "rerender" cả những
+    // section không liên quan tới lần kéo này.
+    const patches = [
+      dispatch(
+        taskApi.util.updateQueryData(
+          "listTasksByWorkspace",
+          { workspaceId, sprintId: sourceSprintId },
+          (draft) => {
+            const index = draft.findIndex((item) => item.id === task.id);
+            if (index !== -1) draft.splice(index, 1);
+          },
+        ),
+      ),
+      dispatch(
+        taskApi.util.updateQueryData(
+          "listTasksByWorkspace",
+          { workspaceId, sprintId: targetSprintId },
+          (draft) => {
+            if (!draft.some((item) => item.id === task.id)) draft.push(task);
+          },
+        ),
+      ),
+    ];
 
     try {
       // sprint.md #5.6/#5.7: chỉ Add/Remove được khi Sprint đích/nguồn đang
       // Planned — Backend tự chặn nếu vi phạm (Active/Completed sẽ báo lỗi).
       if (sourceSprintId !== "backlog") {
-        await removeSprintTask({
-          sprintId: sourceSprintId,
-          taskId: data.task.id,
-        }).unwrap();
+        await removeSprintTask({ sprintId: sourceSprintId, taskId: task.id }).unwrap();
       }
       if (targetSprintId !== "backlog") {
-        await addSprintTask({
-          sprintId: targetSprintId,
-          taskId: data.task.id,
-        }).unwrap();
+        await addSprintTask({ sprintId: targetSprintId, taskId: task.id }).unwrap();
       }
     } catch (error) {
+      patches.forEach((patch) => patch.undo());
       window.alert(getApiErrorMessage(error as never));
     }
   }
