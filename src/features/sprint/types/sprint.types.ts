@@ -12,3 +12,24 @@ export interface Sprint {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface BurndownPoint {
+  date: string;
+  remainingPoints: number;
+}
+
+export interface SprintBurndown {
+  sprintId: string;
+  totalPoints: number;
+  startDate: string;
+  endDate: string;
+  idealLine: BurndownPoint[];
+  actualLine: BurndownPoint[];
+}
+
+export interface SprintVelocity {
+  sprintId: string;
+  sprintName: string;
+  velocity: number;
+  completedAt: string;
+}

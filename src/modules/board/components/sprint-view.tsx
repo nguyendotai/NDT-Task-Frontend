@@ -38,6 +38,8 @@ import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { SprintFormDialog } from "./sprint-form-dialog";
 import { SprintTaskList } from "./sprint-task-list";
 import { TaskFormDialog } from "./task-form-dialog";
+import { SprintBurndownChart } from "./sprint-burndown-chart";
+import { WorkspaceVelocityChart } from "./workspace-velocity-chart";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -276,6 +278,12 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
                 interactive={false}
               />
             </div>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium text-muted-foreground uppercase">
+                Burndown
+              </p>
+              <SprintBurndownChart sprintId={activeSprint.id} />
+            </div>
           </div>
         ) : (
           <p className="rounded-2xl border border-dashed border-border/60 p-6 text-center text-sm text-muted-foreground">
@@ -397,6 +405,13 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      {completedSprints.length > 0 ? (
+        <section className="flex flex-col gap-3">
+          <h3 className="text-sm font-medium text-muted-foreground">Velocity</h3>
+          <WorkspaceVelocityChart workspaceId={workspaceId} />
+        </section>
+      ) : null}
 
       {completedSprints.length > 0 ? (
         <section className="flex flex-col gap-3">

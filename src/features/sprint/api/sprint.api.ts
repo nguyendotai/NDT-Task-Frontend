@@ -1,5 +1,5 @@
 import { baseApi } from "@/shared/services/base-api";
-import type { Sprint } from "../types/sprint.types";
+import type { Sprint, SprintBurndown, SprintVelocity } from "../types/sprint.types";
 
 interface CreateSprintRequest {
   workspaceId: string;
@@ -79,6 +79,17 @@ export const sprintApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Task"],
     }),
+    // Burndown phụ thuộc Task đổi Column (Done/chưa Done) — dùng chung tag
+    // "Task" (không kèm id) giống listTasksByWorkspace, để mọi mutation Task
+    // hiện có (vốn chỉ invalidatesTags: ["Task"] không kèm id) refetch đúng.
+    getSprintBurndown: builder.query<SprintBurndown, string>({
+      query: (sprintId) => `/sprints/${sprintId}/burndown`,
+      providesTags: ["Task"],
+    }),
+    getWorkspaceVelocity: builder.query<SprintVelocity[], string>({
+      query: (workspaceId) => `/workspaces/${workspaceId}/sprints/velocity`,
+      providesTags: ["Sprint"],
+    }),
   }),
 });
 
@@ -91,4 +102,6 @@ export const {
   useCompleteSprintMutation,
   useAddSprintTaskMutation,
   useRemoveSprintTaskMutation,
+  useGetSprintBurndownQuery,
+  useGetWorkspaceVelocityQuery,
 } = sprintApi;
