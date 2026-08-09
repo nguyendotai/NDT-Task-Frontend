@@ -15,7 +15,9 @@ interface SearchResultGroupsProps {
   activeType: SearchEntityType | undefined;
   // Kết quả có thể thuộc nhiều Workspace khác nhau (Global Search) nên điều
   // hướng phải theo đúng workspace của TỪNG item, không phải 1 workspace cố định.
-  onSelect: (workspace: WorkspaceRef) => void;
+  // taskId (nếu có) dùng để deep-link thẳng tới Task Detail Modal thay vì chỉ
+  // dừng ở trang Workspace — Comment/Attachment deep-link qua đúng Task cha.
+  onSelect: (workspace: WorkspaceRef, taskId?: string) => void;
 }
 
 export function SearchResultGroups({ results, activeType, onSelect }: SearchResultGroupsProps) {
@@ -28,7 +30,7 @@ export function SearchResultGroups({ results, activeType, onSelect }: SearchResu
           {results.tasks.map((task) => (
             <ResultItem
               key={task.id}
-              onSelect={() => onSelect(task.workspace)}
+              onSelect={() => onSelect(task.workspace, task.id)}
               title={task.title}
               subtitle={task.status}
               workspaceName={task.workspace.name}
@@ -41,7 +43,7 @@ export function SearchResultGroups({ results, activeType, onSelect }: SearchResu
           {results.comments.map((comment) => (
             <ResultItem
               key={comment.id}
-              onSelect={() => onSelect(comment.workspace)}
+              onSelect={() => onSelect(comment.workspace, comment.taskId)}
               title={comment.content}
               subtitle="Comment"
               workspaceName={comment.workspace.name}
@@ -54,7 +56,7 @@ export function SearchResultGroups({ results, activeType, onSelect }: SearchResu
           {results.attachments.map((attachment) => (
             <ResultItem
               key={attachment.id}
-              onSelect={() => onSelect(attachment.workspace)}
+              onSelect={() => onSelect(attachment.workspace, attachment.taskId)}
               title={attachment.fileName}
               subtitle={attachment.mimeType}
               workspaceName={attachment.workspace.name}

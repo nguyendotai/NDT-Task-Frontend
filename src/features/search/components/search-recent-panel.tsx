@@ -38,7 +38,7 @@ export function SearchRecentPanel({ workspaceId, onSelect }: SearchRecentPanelPr
           {recentTasks.map((task) => (
             <Link
               key={task.id}
-              href={`/workspaces/${task.workspaceId}`}
+              href={`/workspaces/${task.workspaceId}?taskId=${task.id}`}
               onClick={onSelect}
               className="block truncate rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent"
             >

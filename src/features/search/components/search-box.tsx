@@ -53,8 +53,12 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
     setQuery("");
   };
 
-  const goToResultWorkspace = (targetWorkspaceId: string) => {
-    router.push(`/workspaces/${targetWorkspaceId}`);
+  const goToResult = (targetWorkspaceId: string, taskId?: string) => {
+    router.push(
+      taskId
+        ? `/workspaces/${targetWorkspaceId}?taskId=${taskId}`
+        : `/workspaces/${targetWorkspaceId}`,
+    );
     closeAndReset();
   };
 
@@ -111,7 +115,7 @@ export function SearchBox({ workspaceId }: SearchBoxProps) {
                 <SearchResultGroups
                   results={data as SearchResults}
                   activeType={undefined}
-                  onSelect={(workspace) => goToResultWorkspace(workspace.id)}
+                  onSelect={(workspace, taskId) => goToResult(workspace.id, taskId)}
                 />
               )}
             </div>

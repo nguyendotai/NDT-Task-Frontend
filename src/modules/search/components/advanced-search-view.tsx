@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeftIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
@@ -69,6 +70,7 @@ interface AdvancedSearchViewProps {
 }
 
 export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearchViewProps) {
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery.q ?? "");
   const [type, setType] = useState<SearchEntityType | undefined>(parseInitialType(initialQuery.type));
   const [filters, setFilters] = useState<SearchTaskFilters>({
@@ -134,6 +136,11 @@ export function AdvancedSearchView({ workspaceId, initialQuery }: AdvancedSearch
               results={data}
               type={type}
               onPickType={(nextType) => setType(nextType)}
+              onSelectItem={(taskId) =>
+                router.push(
+                  taskId ? `/workspaces/${workspaceId}?taskId=${taskId}` : `/workspaces/${workspaceId}`,
+                )
+              }
             />
           )}
 
@@ -163,10 +170,12 @@ function SearchResultSections({
   results,
   type,
   onPickType,
+  onSelectItem,
 }: {
   results: SearchResults | undefined;
   type: SearchEntityType | undefined;
   onPickType: (type: SearchEntityType) => void;
+  onSelectItem: (taskId?: string) => void;
 }) {
   if (!results) return null;
 
@@ -199,7 +208,7 @@ function SearchResultSections({
             </div>
             <div className="rounded-lg border border-border/60">
               {items.map((item) => (
-                <SectionRow key={item.id} item={item} />
+                <SectionRow key={item.id} item={item} onSelect={onSelectItem} />
               ))}
             </div>
           </div>
@@ -209,10 +218,20 @@ function SearchResultSections({
   );
 }
 
-function SectionRow({ item }: { item: SearchResults[keyof SearchResults][number] }) {
+function SectionRow({
+  item,
+  onSelect,
+}: {
+  item: SearchResults[keyof SearchResults][number];
+  onSelect: (taskId?: string) => void;
+}) {
   const title =
     "title" in item ? item.title : "content" in item ? item.content : "fileName" in item ? item.fileName : "name" in item ? item.name : "";
   const subtitle =
     "status" in item ? item.status : "email" in item ? item.email : "mimeType" in item ? item.mimeType : "";
-  return <ResultItem title={title} subtitle={subtitle} onSelect={() => {}} />;
+  // Comment/Attachment deep-link qua đúng Task cha (field taskId); bản thân
+  // Task result thì item.id chính là taskId (nhận diện qua field columnId
+  // chỉ TaskSearchResult mới có) — Member/Sprint/Column không có deep-link.
+  const taskId = "taskId" in item ? item.taskId : "columnId" in item ? item.id : undefined;
+  return <ResultItem title={title} subtitle={subtitle} onSelect={() => onSelect(taskId)} />;
 }
