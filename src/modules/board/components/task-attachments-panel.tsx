@@ -1,13 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { PaperclipIcon, PlusIcon, XIcon } from "lucide-react";
+import { FileTextIcon, PaperclipIcon, PlusIcon, XIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import {
   useDeleteAttachmentMutation,
   useListAttachmentsQuery,
   useUploadAttachmentMutation,
+  type Attachment,
 } from "@/features/attachment";
 
 function formatFileSize(bytes: number): string {
@@ -16,12 +23,17 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function isPreviewable(mimeType: string): boolean {
+  return mimeType.startsWith("image/") || mimeType === "application/pdf";
+}
+
 export function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
   const { data: attachments, isLoading } = useListAttachmentsQuery(taskId);
   const [uploadAttachment, { isLoading: isUploading }] =
     useUploadAttachmentMutation();
   const [deleteAttachment] = useDeleteAttachmentMutation();
   const [isDragging, setDragging] = useState(false);
+  const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList | null) => {
@@ -97,35 +109,81 @@ export function TaskAttachmentsPanel({ taskId }: { taskId: string }) {
         <p className="text-sm text-muted-foreground">No attachments yet.</p>
       ) : (
         <div className="flex flex-col gap-2">
-          {attachments.map((attachment) => (
-            <div
-              key={attachment.id}
-              className="flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3 py-2"
-            >
-              <a
-                href={attachment.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="min-w-0 flex-1 truncate text-sm font-medium text-foreground hover:underline"
+          {attachments.map((attachment) => {
+            const previewable = isPreviewable(attachment.mimeType);
+            const isImage = attachment.mimeType.startsWith("image/");
+            return (
+              <div
+                key={attachment.id}
+                className="flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3 py-2"
               >
-                {attachment.fileName}
-              </a>
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {formatFileSize(attachment.fileSize)}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Delete attachment"
-                onClick={() => handleDelete(attachment.id)}
-              >
-                <XIcon className="size-3.5" />
-              </Button>
-            </div>
-          ))}
+                <button
+                  type="button"
+                  onClick={
+                    previewable
+                      ? () => setPreviewAttachment(attachment)
+                      : () => window.open(attachment.fileUrl, "_blank", "noreferrer")
+                  }
+                  className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                >
+                  {isImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- ảnh Cloudinary bên ngoài domain, next/image cần cấu hình remotePatterns không cần thiết cho thumbnail nhỏ này
+                    <img
+                      src={attachment.fileUrl}
+                      alt={attachment.fileName}
+                      className="size-9 shrink-0 rounded-md object-cover"
+                    />
+                  ) : (
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+                      <FileTextIcon className="size-4 text-muted-foreground" />
+                    </span>
+                  )}
+                  <span className="min-w-0 truncate text-sm font-medium text-foreground hover:underline">
+                    {attachment.fileName}
+                  </span>
+                </button>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatFileSize(attachment.fileSize)}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Delete attachment"
+                  onClick={() => handleDelete(attachment.id)}
+                >
+                  <XIcon className="size-3.5" />
+                </Button>
+              </div>
+            );
+          })}
         </div>
       )}
+
+      <Dialog
+        open={previewAttachment !== null}
+        onOpenChange={(open) => !open && setPreviewAttachment(null)}
+      >
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="truncate">{previewAttachment?.fileName}</DialogTitle>
+          </DialogHeader>
+          {previewAttachment?.mimeType.startsWith("image/") ? (
+            // eslint-disable-next-line @next/next/no-img-element -- ảnh Cloudinary bên ngoài domain, preview kích thước gốc không cần tối ưu qua next/image
+            <img
+              src={previewAttachment.fileUrl}
+              alt={previewAttachment.fileName}
+              className="mx-auto max-h-[75vh] w-auto rounded-lg object-contain"
+            />
+          ) : previewAttachment ? (
+            <iframe
+              src={previewAttachment.fileUrl}
+              title={previewAttachment.fileName}
+              className="h-[75vh] w-full rounded-lg border border-border/60"
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
