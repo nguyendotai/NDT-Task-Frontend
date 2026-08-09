@@ -18,6 +18,7 @@ import {
   type UpdateProfileFormValues,
 } from "@/features/user";
 import { ChangePasswordForm } from "./change-password-form";
+import { NotificationPreferencesSection } from "./notification-preferences-section";
 
 export function ProfileView() {
   const dispatch = useAppDispatch();
@@ -158,6 +159,8 @@ export function ProfileView() {
           </div>
         </form>
       </div>
+
+      <NotificationPreferencesSection />
 
       <ChangePasswordForm />
     </div>
