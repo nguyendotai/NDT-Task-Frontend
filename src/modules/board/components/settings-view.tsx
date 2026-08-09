@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeftIcon, FolderKanbanIcon, UsersIcon } from "lucide-react";
+import { ArrowLeftIcon, FolderKanbanIcon, HistoryIcon, UsersIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useAppSelector } from "@/shared/hooks/use-app-selector";
 import { selectCurrentUser } from "@/features/auth";
 import { useGetWorkspaceQuery, useListMembersQuery } from "@/features/workspace";
 import { WorkspaceSettingsView } from "./workspace-settings-view";
 import { MemberView } from "./member-view";
+import { WorkspaceActivityView } from "./workspace-activity-view";
 
 export function SettingsView({ workspaceId }: { workspaceId: string }) {
   const currentUser = useAppSelector(selectCurrentUser);
@@ -24,6 +25,15 @@ export function SettingsView({ workspaceId }: { workspaceId: string }) {
     () =>
       members?.some(
         (member) => member.user.id === currentUser?.id && member.role === "OWNER",
+      ) ?? false,
+    [members, currentUser],
+  );
+  const canManage = useMemo(
+    () =>
+      members?.some(
+        (member) =>
+          member.user.id === currentUser?.id &&
+          (member.role === "OWNER" || member.role === "ADMIN"),
       ) ?? false,
     [members, currentUser],
   );
@@ -76,6 +86,12 @@ export function SettingsView({ workspaceId }: { workspaceId: string }) {
             <UsersIcon className="size-4" />
             Member
           </TabsTrigger>
+          {canManage ? (
+            <TabsTrigger value="activity" className="justify-start gap-2 px-3 py-2">
+              <HistoryIcon className="size-4" />
+              Activity
+            </TabsTrigger>
+          ) : null}
         </TabsList>
 
         <TabsContent value="workspace" className="min-w-0 flex-1">
@@ -91,6 +107,12 @@ export function SettingsView({ workspaceId }: { workspaceId: string }) {
         <TabsContent value="member" className="min-w-0 flex-1">
           <MemberView workspaceId={workspaceId} />
         </TabsContent>
+
+        {canManage ? (
+          <TabsContent value="activity" className="min-w-0 flex-1">
+            <WorkspaceActivityView workspaceId={workspaceId} />
+          </TabsContent>
+        ) : null}
       </Tabs>
     </div>
   );

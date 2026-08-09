@@ -9,6 +9,7 @@ import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { useGoogleLoginMutation } from "../api/auth.api";
 import { setCredentials } from "../store/auth.slice";
 import { resolveSafeRedirect } from "../utils/safe-redirect";
+import { TwoFactorVerifyForm } from "./two-factor-verify-form";
 
 interface GoogleCredentialResponse {
   credential: string;
@@ -59,6 +60,7 @@ export function GoogleButton({ redirectTo }: { redirectTo?: string }) {
   const [googleLogin, { isLoading }] = useGoogleLoginMutation();
   const [error, setError] = useState<string | null>(null);
   const [isScriptReady, setScriptReady] = useState(false);
+  const [pendingTempToken, setPendingTempToken] = useState<string | null>(null);
   const hiddenButtonHostRef = useRef<HTMLDivElement>(null);
 
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -72,6 +74,10 @@ export function GoogleButton({ redirectTo }: { redirectTo?: string }) {
         setError(null);
         try {
           const result = await googleLogin({ idToken: response.credential }).unwrap();
+          if ("requiresTwoFactor" in result) {
+            setPendingTempToken(result.tempToken);
+            return;
+          }
           dispatch(setCredentials(result));
           router.push(resolveSafeRedirect(redirectTo));
         } catch (err) {
@@ -91,6 +97,16 @@ export function GoogleButton({ redirectTo }: { redirectTo?: string }) {
   };
 
   if (!clientId) return null;
+
+  if (pendingTempToken) {
+    return (
+      <TwoFactorVerifyForm
+        tempToken={pendingTempToken}
+        redirectTo={redirectTo}
+        onCancel={() => setPendingTempToken(null)}
+      />
+    );
+  }
 
   return (
     <div>

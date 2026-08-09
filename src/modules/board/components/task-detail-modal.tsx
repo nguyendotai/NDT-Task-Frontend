@@ -24,6 +24,7 @@ import {
 import { useListMembersQuery, type WorkspaceColumn } from "@/features/workspace";
 import { recordRecentlyViewedTask } from "@/features/search";
 import { TaskAttachmentsPanel } from "./task-attachments-panel";
+import { TaskTimeLogPanel } from "./task-timelog-panel";
 import { TaskActivityPanel } from "./task-activity-panel";
 import { TaskChecklistPanel } from "./task-checklist-panel";
 import { TaskLabelsPanel } from "./task-labels-panel";
@@ -159,6 +160,8 @@ export function TaskDetailModal({
             <TaskChecklistPanel taskId={task.id} />
 
             <TaskAttachmentsPanel taskId={task.id} />
+
+            <TaskTimeLogPanel taskId={task.id} memberNameById={memberNameById} />
 
             <TaskActivityPanel
               taskId={task.id}

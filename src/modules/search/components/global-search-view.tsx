@@ -139,7 +139,11 @@ export function GlobalSearchView({ initialQuery }: GlobalSearchViewProps) {
               results={data}
               type={type}
               onPickType={(nextType) => setType(nextType)}
-              onSelectItem={(workspaceId) => router.push(`/workspaces/${workspaceId}`)}
+              onSelectItem={(workspaceId, taskId) =>
+                router.push(
+                  taskId ? `/workspaces/${workspaceId}?taskId=${taskId}` : `/workspaces/${workspaceId}`,
+                )
+              }
             />
           )}
 
@@ -172,7 +176,7 @@ function SearchResultSections({
   results: SearchResults | undefined;
   type: SearchEntityType | undefined;
   onPickType: (type: SearchEntityType) => void;
-  onSelectItem: (workspaceId: string) => void;
+  onSelectItem: (workspaceId: string, taskId?: string) => void;
 }) {
   if (!results) return null;
 
@@ -220,18 +224,22 @@ function SectionRow({
   onSelect,
 }: {
   item: SearchResults[keyof SearchResults][number];
-  onSelect: (workspaceId: string) => void;
+  onSelect: (workspaceId: string, taskId?: string) => void;
 }) {
   const title =
     "title" in item ? item.title : "content" in item ? item.content : "fileName" in item ? item.fileName : "name" in item ? item.name : "";
   const subtitle =
     "status" in item ? item.status : "email" in item ? item.email : "mimeType" in item ? item.mimeType : "";
+  // Comment/Attachment deep-link qua đúng Task cha (field taskId); bản thân
+  // Task result thì item.id chính là taskId (nhận diện qua field columnId
+  // chỉ TaskSearchResult mới có) — Member/Sprint/Column không có deep-link.
+  const taskId = "taskId" in item ? item.taskId : "columnId" in item ? item.id : undefined;
   return (
     <ResultItem
       title={title}
       subtitle={subtitle}
       workspaceName={item.workspace.name}
-      onSelect={() => onSelect(item.workspace.id)}
+      onSelect={() => onSelect(item.workspace.id, taskId)}
     />
   );
 }

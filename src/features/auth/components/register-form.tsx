@@ -46,6 +46,12 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
         email: values.email,
         password: values.password,
       }).unwrap();
+      if ("requiresTwoFactor" in loginResult) {
+        // Tài khoản vừa đăng ký luôn có twoFactorEnabled=false nên nhánh này
+        // thực tế không xảy ra — fallback về trang login để đảm bảo type-safe.
+        router.push(redirectTo ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login");
+        return;
+      }
       dispatch(setCredentials(loginResult));
       router.push(resolveSafeRedirect(redirectTo));
     } catch (error) {

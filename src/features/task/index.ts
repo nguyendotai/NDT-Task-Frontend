@@ -36,3 +36,4 @@ export {
 } from "./constants/task-labels";
 export { taskFormSchema, type TaskFormValues } from "./schemas/task-form.schema";
 export { filterTasks } from "./utils/filter-tasks";
+export { tasksToCsv, downloadCsv } from "./utils/export-tasks-csv";
