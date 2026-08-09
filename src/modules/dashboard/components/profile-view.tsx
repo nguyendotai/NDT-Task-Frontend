@@ -19,6 +19,7 @@ import {
 } from "@/features/user";
 import { ChangePasswordForm } from "./change-password-form";
 import { NotificationPreferencesSection } from "./notification-preferences-section";
+import { TwoFactorSection } from "./two-factor-section";
 
 export function ProfileView() {
   const dispatch = useAppDispatch();
@@ -161,6 +162,8 @@ export function ProfileView() {
       </div>
 
       <NotificationPreferencesSection />
+
+      <TwoFactorSection />
 
       <ChangePasswordForm />
     </div>

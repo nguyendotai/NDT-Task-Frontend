@@ -18,13 +18,34 @@ interface LoginRequest {
   password: string;
 }
 
-interface LoginResponse {
+interface LoginSuccessResponse {
   accessToken: string;
   user: AuthUser;
 }
 
+interface RequiresTwoFactorResponse {
+  requiresTwoFactor: true;
+  tempToken: string;
+}
+
+export type LoginResponse = LoginSuccessResponse | RequiresTwoFactorResponse;
+
 interface GoogleLoginRequest {
   idToken: string;
+}
+
+interface VerifyTwoFactorLoginRequest {
+  tempToken: string;
+  code: string;
+}
+
+interface SetupTwoFactorResponse {
+  secret: string;
+  qrCodeDataUrl: string;
+}
+
+interface TwoFactorCodeRequest {
+  code: string;
 }
 
 interface RefreshResponse {
@@ -69,6 +90,20 @@ export const authApi = baseApi.injectEndpoints({
     changePassword: builder.mutation<Record<string, never>, ChangePasswordRequest>({
       query: (body) => ({ url: "/auth/change-password", method: "POST", body }),
     }),
+    verifyTwoFactorLogin: builder.mutation<LoginSuccessResponse, VerifyTwoFactorLoginRequest>({
+      query: (body) => ({ url: "/auth/2fa/verify-login", method: "POST", body }),
+    }),
+    setupTwoFactor: builder.mutation<SetupTwoFactorResponse, void>({
+      query: () => ({ url: "/auth/2fa/setup", method: "POST" }),
+    }),
+    enableTwoFactor: builder.mutation<Record<string, never>, TwoFactorCodeRequest>({
+      query: (body) => ({ url: "/auth/2fa/enable", method: "POST", body }),
+      invalidatesTags: ["User"],
+    }),
+    disableTwoFactor: builder.mutation<Record<string, never>, TwoFactorCodeRequest>({
+      query: (body) => ({ url: "/auth/2fa/disable", method: "POST", body }),
+      invalidatesTags: ["User"],
+    }),
     forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
       query: (body) => ({ url: "/auth/forgot-password", method: "POST", body }),
     }),
@@ -88,6 +123,10 @@ export const {
   useRefreshMutation,
   useLogoutMutation,
   useChangePasswordMutation,
+  useVerifyTwoFactorLoginMutation,
+  useSetupTwoFactorMutation,
+  useEnableTwoFactorMutation,
+  useDisableTwoFactorMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useLazyGetMeQuery,

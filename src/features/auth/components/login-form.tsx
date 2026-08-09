@@ -15,12 +15,14 @@ import { useLoginMutation } from "../api/auth.api";
 import { setCredentials } from "../store/auth.slice";
 import { resolveSafeRedirect } from "../utils/safe-redirect";
 import { GoogleButton } from "./google-button";
+import { TwoFactorVerifyForm } from "./two-factor-verify-form";
 
 export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [formError, setFormError] = useState<string | null>(null);
+  const [pendingTempToken, setPendingTempToken] = useState<string | null>(null);
 
   const {
     register,
@@ -35,12 +37,26 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
     setFormError(null);
     try {
       const result = await login(values).unwrap();
+      if ("requiresTwoFactor" in result) {
+        setPendingTempToken(result.tempToken);
+        return;
+      }
       dispatch(setCredentials(result));
       router.push(resolveSafeRedirect(redirectTo));
     } catch (error) {
       setFormError(getApiErrorMessage(error as never));
     }
   };
+
+  if (pendingTempToken) {
+    return (
+      <TwoFactorVerifyForm
+        tempToken={pendingTempToken}
+        redirectTo={redirectTo}
+        onCancel={() => setPendingTempToken(null)}
+      />
+    );
+  }
 
   return (
     <div>

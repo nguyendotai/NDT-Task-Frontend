@@ -11,7 +11,13 @@ export {
   clearCredentials,
   setUser,
 } from "./store/auth.slice";
-export { useLogoutMutation, useChangePasswordMutation } from "./api/auth.api";
+export {
+  useLogoutMutation,
+  useChangePasswordMutation,
+  useSetupTwoFactorMutation,
+  useEnableTwoFactorMutation,
+  useDisableTwoFactorMutation,
+} from "./api/auth.api";
 export type { AuthUser } from "./types/auth.types";
 export {
   changePasswordSchema,
