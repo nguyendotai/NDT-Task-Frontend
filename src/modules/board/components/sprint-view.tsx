@@ -10,7 +10,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { PlusIcon } from "lucide-react";
+import { DownloadIcon, PlusIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
@@ -25,7 +25,15 @@ import {
   useStartSprintMutation,
   type Sprint,
 } from "@/features/sprint";
-import { PRIORITY_BADGE_CLASS, PRIORITY_LABEL, taskApi, type Task } from "@/features/task";
+import {
+  PRIORITY_BADGE_CLASS,
+  PRIORITY_LABEL,
+  taskApi,
+  tasksToCsv,
+  downloadCsv,
+  useListTasksByWorkspaceQuery,
+  type Task,
+} from "@/features/task";
 import { getApiErrorMessage } from "@/shared/utils/api-error";
 import { SprintFormDialog } from "./sprint-form-dialog";
 import { SprintTaskList } from "./sprint-task-list";
@@ -67,6 +75,27 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
   const activeSprint = sprints?.find((sprint) => sprint.status === "ACTIVE");
   const plannedSprints = sprints?.filter((sprint) => sprint.status === "PLANNED") ?? [];
   const completedSprints = sprints?.filter((sprint) => sprint.status === "COMPLETED") ?? [];
+
+  // Cùng cache key với SprintTaskList (Active Sprint) — không gọi thêm request
+  // mới, chỉ để có sẵn danh sách Task phục vụ Export CSV ở đây.
+  const { data: activeSprintTasks } = useListTasksByWorkspaceQuery(
+    { workspaceId, sprintId: activeSprint?.id ?? "" },
+    { skip: !activeSprint },
+  );
+  const columnNameById = useMemo(
+    () => new Map(columns.map((column) => [column.id, column.name])),
+    [columns],
+  );
+  const assigneeNameById = useMemo(
+    () => new Map((members ?? []).map((member) => [member.user.id, member.user.name])),
+    [members],
+  );
+
+  const handleExportActiveSprintCsv = () => {
+    if (!activeSprint || !activeSprintTasks) return;
+    const csv = tasksToCsv(activeSprintTasks, { columnNameById, assigneeNameById });
+    downloadCsv(csv, `${activeSprint.name}-tasks.csv`);
+  };
 
   const handleStart = async (sprintId: string) => {
     try {
@@ -202,28 +231,41 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
                   {formatDate(activeSprint.startDate)} – {formatDate(activeSprint.endDate)}
                 </p>
               </div>
-              {canManage ? (
-                <div className="flex shrink-0 gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => setCreateActiveSprintTaskOpen(true)}
-                  >
-                    <PlusIcon className="size-3.5" />
-                    Add task
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleComplete(activeSprint.id)}
-                  >
-                    Complete sprint
-                  </Button>
-                </div>
-              ) : null}
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  disabled={!activeSprintTasks || activeSprintTasks.length === 0}
+                  onClick={handleExportActiveSprintCsv}
+                >
+                  <DownloadIcon className="size-3.5" />
+                  Export CSV
+                </Button>
+                {canManage ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => setCreateActiveSprintTaskOpen(true)}
+                    >
+                      <PlusIcon className="size-3.5" />
+                      Add task
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleComplete(activeSprint.id)}
+                    >
+                      Complete sprint
+                    </Button>
+                  </>
+                ) : null}
+              </div>
             </div>
             <div className="mt-4">
               <SprintTaskList

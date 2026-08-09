@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
+import { DownloadIcon, MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -28,6 +28,8 @@ import {
   TYPE_LABEL,
   getTaskKey,
   filterTasks,
+  tasksToCsv,
+  downloadCsv,
   EMPTY_TASK_FILTER_STATE,
   type TaskFilterState,
 } from "@/features/task";
@@ -63,6 +65,14 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
     [tasks, searchTerm, taskFilters],
   );
 
+  const handleExportCsv = () => {
+    const csv = tasksToCsv(filteredTasks, {
+      columnNameById,
+      assigneeNameById,
+    });
+    downloadCsv(csv, `tasks-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
@@ -84,10 +94,23 @@ export function ListView({ workspaceId }: { workspaceId: string }) {
           columns={board?.columns ?? []}
           members={members ?? []}
         />
-        <Button type="button" size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
-          <PlusIcon className="size-3.5" />
-          New task
-        </Button>
+        <div className="flex shrink-0 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            disabled={filteredTasks.length === 0}
+            onClick={handleExportCsv}
+          >
+            <DownloadIcon className="size-3.5" />
+            Export CSV
+          </Button>
+          <Button type="button" size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
+            <PlusIcon className="size-3.5" />
+            New task
+          </Button>
+        </div>
       </div>
 
       {!tasks || tasks.length === 0 ? (
