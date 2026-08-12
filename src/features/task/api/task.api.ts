@@ -1,4 +1,6 @@
+import { toast } from "sonner";
 import { baseApi } from "@/shared/services/base-api";
+import { getApiErrorMessage } from "@/shared/utils/api-error";
 import type {
   Task,
   TaskActivityEntry,
@@ -131,8 +133,12 @@ export const taskApi = baseApi.injectEndpoints({
         );
         try {
           await queryFulfilled;
-        } catch {
+        } catch (err) {
           patchResult.undo();
+          // Vd. Member kéo-thả Task của người khác (không phải người tạo/được
+          // gán) — trước đây UI chỉ âm thầm "nhảy về" vị trí cũ không rõ lý do.
+          const typedErr = err as { error?: Parameters<typeof getApiErrorMessage>[0] };
+          toast.error(getApiErrorMessage(typedErr.error));
         }
       },
       invalidatesTags: ["Task"],

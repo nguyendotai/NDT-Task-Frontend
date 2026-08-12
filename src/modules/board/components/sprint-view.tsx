@@ -11,6 +11,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { DownloadIcon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { useAppDispatch } from "@/shared/hooks/use-app-dispatch";
@@ -103,7 +104,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
     try {
       await startSprint(sprintId).unwrap();
     } catch (error) {
-      window.alert(getApiErrorMessage(error as never));
+      toast.error(getApiErrorMessage(error as never));
     }
   };
 
@@ -118,7 +119,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
     try {
       await completeSprint(sprintId).unwrap();
     } catch (error) {
-      window.alert(getApiErrorMessage(error as never));
+      toast.error(getApiErrorMessage(error as never));
     }
   };
 
@@ -180,7 +181,7 @@ export function SprintView({ workspaceId }: { workspaceId: string }) {
       }
     } catch (error) {
       patches.forEach((patch) => patch.undo());
-      window.alert(getApiErrorMessage(error as never));
+      toast.error(getApiErrorMessage(error as never));
     }
   }
 
